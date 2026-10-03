@@ -1,0 +1,62 @@
+{
+  "version": "2026-10-03-v1",
+  "scope": "Research-scoping demonstration; not clinical guidance",
+  "sources": [
+    {
+      "id": "medline-angelman",
+      "title": "Angelman syndrome — MedlinePlus Genetics",
+      "url": "https://medlineplus.gov/genetics/condition/angelman-syndrome/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "medline-dup15q",
+      "title": "15q11-q13 duplication syndrome — MedlinePlus Genetics",
+      "url": "https://medlineplus.gov/genetics/condition/15q11-q13-duplication-syndrome/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "ncbi-ube3a",
+      "title": "UBE3A (Gene ID 7337) — NCBI Gene",
+      "url": "https://www.ncbi.nlm.nih.gov/gene/7337/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "ladder-about",
+      "title": "About LADDER — LADDER to Treatment",
+      "url": "https://www.laddertotreatment.org/about-ladder/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "ladder-researchers",
+      "title": "For Researchers — LADDER to Treatment",
+      "url": "https://www.laddertotreatment.org/for-researchers/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "ladder-paper",
+      "title": "LADDER research publication — PubMed",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/38808315/",
+      "retrieved_at": "2026-10-03"
+    }
+  ],
+  "nodes": [
+    {"id": "angelman", "type": "disease", "label": "Angelman syndrome", "description": "A neurodevelopmental condition with several molecular causes involving deficient maternal UBE3A function or expression.", "aliases": ["AS"]},
+    {"id": "dup15q", "type": "disease", "label": "Dup15q syndrome", "description": "A condition associated with one or more extra maternal copies of chromosome 15q11.2–q13.1; the duplicated region spans multiple genes.", "aliases": ["15q11-q13 duplication syndrome", "maternal dup15q"]},
+    {"id": "ube3a", "type": "gene", "label": "UBE3A", "description": "A gene implicated in Angelman syndrome and located in the duplicated chromosome-15 region.", "aliases": []},
+    {"id": "locus15q", "type": "locus", "label": "15q11.2–q13.1", "description": "Chromosome region relevant to both conditions; sharing a locus does not imply a shared therapy.", "aliases": ["15q11-q13"]},
+    {"id": "ladder", "type": "research asset", "label": "LADDER", "description": "An existing Angelman–Dup15q data collaboration, not a connection discovered by this prototype.", "aliases": ["Linking Angelman and Dup15q Data for Expanded Research"]},
+    {"id": "asf", "type": "patient group", "label": "Angelman Syndrome Foundation", "description": "A LADDER collaboration partner.", "aliases": []},
+    {"id": "dup15q-alliance", "type": "patient group", "label": "Dup15q Alliance", "description": "A LADDER collaboration partner.", "aliases": []},
+    {"id": "rti", "type": "research organization", "label": "RTI International", "description": "LADDER research implementation partner.", "aliases": []}
+  ],
+  "edges": [
+    {"id": "angelman-ube3a", "source": "angelman", "target": "ube3a", "label": "deficient maternal UBE3A function/expression", "basis": "sourced biological relationship", "summary": "Angelman syndrome can arise through several mechanisms that reduce maternal UBE3A function or expression.", "source_id": "medline-angelman", "source_locator": "Causes", "limitation": "Not all cases have the same molecular class; a single UBE3A statement cannot define patient eligibility."},
+    {"id": "ube3a-locus", "source": "ube3a", "target": "locus15q", "label": "located in region", "basis": "sourced location", "summary": "NCBI Gene locates UBE3A at 15q11.2, inside the broader 15q11.2–q13.1 region.", "source_id": "ncbi-ube3a", "source_locator": "Genomic context", "limitation": "Location alone does not establish a therapeutic match."},
+    {"id": "dup15q-locus", "source": "dup15q", "target": "locus15q", "label": "maternal copy-number gain", "basis": "sourced biological relationship", "summary": "Dup15q involves extra maternal copies of a region containing multiple genes.", "source_id": "medline-dup15q", "source_locator": "Causes", "limitation": "Dup15q is not a synonym for UBE3A gain; the duplicated interval spans several genes."},
+    {"id": "angelman-ladder", "source": "angelman", "target": "ladder", "label": "existing cohort collaboration", "basis": "documented research infrastructure", "summary": "LADDER already brings together Angelman and Dup15q research data.", "source_id": "ladder-about", "source_locator": "About LADDER", "limitation": "This is an existing collaboration, not a novel discovery by RarePath."},
+    {"id": "dup15q-ladder", "source": "dup15q", "target": "ladder", "label": "existing cohort collaboration", "basis": "documented research infrastructure", "summary": "LADDER already brings together Angelman and Dup15q research data.", "source_id": "ladder-about", "source_locator": "About LADDER", "limitation": "Access to underlying data is governed; a public dashboard is not equivalent to dataset access."},
+    {"id": "asf-ladder", "source": "asf", "target": "ladder", "label": "collaboration partner", "basis": "documented organization relationship", "summary": "Angelman Syndrome Foundation is a LADDER partner.", "source_id": "ladder-about", "source_locator": "About LADDER", "limitation": "A partner relationship is not consent for data access or research participation."},
+    {"id": "alliance-ladder", "source": "dup15q-alliance", "target": "ladder", "label": "collaboration partner", "basis": "documented organization relationship", "summary": "Dup15q Alliance is a LADDER partner.", "source_id": "ladder-about", "source_locator": "About LADDER", "limitation": "A partner relationship is not consent for data access or research participation."},
+    {"id": "rti-ladder", "source": "rti", "target": "ladder", "label": "research implementation", "basis": "documented organization relationship", "summary": "RTI International participates in LADDER research operations.", "source_id": "ladder-paper", "source_locator": "Abstract and affiliations", "limitation": "Operational involvement does not imply open access to participant-level data."}
+  ]
+}

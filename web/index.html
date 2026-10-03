@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0d1725" />
+    <meta name="description" content="RarePath Atlas maps research relationships and the evidence behind them." />
+    <title>RarePath Atlas — follow the evidence</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="RarePath Atlas home">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span>RarePath <strong>Atlas</strong></span>
+        </a>
+        <nav class="site-nav" aria-label="Page sections">
+          <a href="#map">Explore map</a>
+          <a href="#brief">Action brief</a>
+          <a href="#access">Access levels</a>
+        </nav>
+        <span class="header-tag">Research discovery prototype</span>
+      </header>
+
+      <main id="main">
+        <section class="hero" id="top" aria-labelledby="hero-title">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> A clearer path through rare disease research</p>
+            <h1 id="hero-title">Start with a question.<br /><em>Follow the evidence.</em></h1>
+            <p class="hero-description">For Maria and every family trying to understand a complex research landscape: explore how a condition, its biology, and possible research assets connect, with the source and uncertainty close at hand.</p>
+            <div class="hero-points" aria-label="How to use this atlas">
+              <span><b>01</b> Find a topic</span>
+              <span><b>02</b> Inspect a connection</span>
+              <span><b>03</b> Take a question forward</span>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="art-orbit art-orbit-one"></div>
+            <div class="art-orbit art-orbit-two"></div>
+            <div class="art-thread art-thread-one"></div>
+            <div class="art-thread art-thread-two"></div>
+            <div class="art-node art-node-main"><span>?</span></div>
+            <div class="art-node art-node-a"></div>
+            <div class="art-node art-node-b"></div>
+            <div class="art-node art-node-c"></div>
+            <span class="art-caption">Every connection has a reason.</span>
+          </div>
+        </section>
+
+        <section class="explorer section-panel" id="map" aria-labelledby="map-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">01 / Explore</p>
+              <h2 id="map-title">A map you can question.</h2>
+              <p>Search for a condition or research concept, then open a connection to see what supports it.</p>
+            </div>
+            <span class="section-index" aria-hidden="true">01—03</span>
+          </div>
+
+          <form id="search-form" class="search-form" role="search" autocomplete="off">
+            <label for="search-input">Search the atlas</label>
+            <div class="search-control">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.9" cy="10.9" r="6.9"></circle><path d="m16 16 5 5"></path></svg>
+              <input id="search-input" name="q" type="search" placeholder="Try a condition, gene, or research asset" aria-describedby="search-help" />
+              <button type="submit">Search <span aria-hidden="true">↗</span></button>
+            </div>
+            <p id="search-help" class="form-help">Search results are starting points for research, not diagnoses or treatment recommendations.</p>
+          </form>
+          <div id="search-results" class="search-results" hidden aria-live="polite"></div>
+
+          <div class="map-workspace">
+            <div class="map-area">
+              <div class="workspace-heading">
+                <div>
+                  <p class="eyebrow">Relationship map</p>
+                  <h3 id="focus-label">Loading map…</h3>
+                </div>
+                <div class="map-key" aria-label="Map key"><span><i class="key-node"></i> Research entity</span><span><i class="key-line"></i> Relationship</span></div>
+              </div>
+              <div class="map-visual" id="map-visual" aria-live="polite">
+                <div class="loading-state">Loading research connections…</div>
+              </div>
+              <p class="map-hint">The map shows recorded research relationships. A line does not establish causation or imply that two therapies are equivalent.</p>
+            </div>
+
+            <aside class="evidence-panel" aria-label="Evidence lens">
+              <div class="panel-topline"><span>Evidence lens</span><span aria-hidden="true">↗</span></div>
+              <div id="evidence-content" aria-live="polite">
+                <div class="empty-evidence">
+                  <span class="lens-icon" aria-hidden="true">✳</span>
+                  <h3 id="evidence-title">Look closer at a line.</h3>
+                  <p>Choose a relationship below. We’ll show its basis, source, and a limitation worth keeping in view.</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="connections">
+            <div class="connections-heading">
+              <h3>Connections in this view</h3>
+              <span id="connection-count">—</span>
+            </div>
+            <div id="edge-list" class="edge-list" aria-live="polite"></div>
+          </div>
+        </section>
+
+        <section class="brief-section" id="brief" aria-labelledby="brief-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">02 / Carry forward</p>
+              <h2 id="brief-title">An action brief, not an answer.</h2>
+              <p>Turn what you found into a grounded conversation with a clinician or research team.</p>
+            </div>
+            <span class="section-index" aria-hidden="true">02—03</span>
+          </div>
+          <div id="brief-content" class="brief-card" aria-live="polite">
+            <div class="loading-state">Preparing the research brief…</div>
+          </div>
+          <div class="brief-actions">
+            <button id="print-brief" type="button">Print / save brief</button>
+            <button id="generate-question" type="button" disabled>Draft a question with OpenAI</button>
+            <span id="generation-status" role="status" aria-live="polite">Live drafting requires your local OpenAI API key and explicit enable flag.</span>
+          </div>
+          <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
+        </section>
+
+        <section class="access-section section-panel" id="access" aria-labelledby="access-title">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">03 / Understand access</p>
+              <h2 id="access-title">LADDER 3 access levels.</h2>
+              <p>Research assets can have different access requirements. Check the level and its requirements before making a request.</p>
+            </div>
+            <span class="section-index" aria-hidden="true">03—03</span>
+          </div>
+          <div id="access-levels" class="access-grid" aria-live="polite">
+            <div class="loading-state">Loading access requirements…</div>
+          </div>
+          <p class="access-note">Access descriptions explain a request pathway; they do not promise eligibility, availability, or clinical benefit.</p>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div><span class="footer-brand">RarePath Atlas</span><p>Research pathways, made inspectable.</p></div>
+        <p>For research scoping and discussion only. Not medical advice. Consult qualified professionals for care decisions.</p>
+        <span id="api-status" class="status-pill" aria-live="polite">Checking service</span>
+      </footer>
+    </div>
+  </body>
+</html>
