@@ -9,7 +9,8 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 - [ ] Real OpenAI call succeeds with the user's securely configured `OPENAI_API_KEY`.
 - [ ] Human reviews generated candidate and all displayed scientific wording.
 - [x] User-provided captures visually show search results, relationship map, selected evidence, Action Brief, and three LADDER access levels. This is not an agent-driven browser test.
-- [ ] Ablation result is visually checked and walkthrough video captured.
+- [x] User-reported counterfactual result confirms the biological route disappears while the independent LADDER route remains.
+- [ ] Walkthrough video captured.
 - [ ] Exact submission fields/videos confirmed in the live organizer portal.
 - [ ] Public repository and deployment approved, then verified.
 - [ ] Submission completed on each required destination before the deadline.
@@ -27,6 +28,8 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 - The user supplied a one-page full-site PDF capture. It visibly renders the Action Brief and three LADDER access cards without obvious clipping. Its query is `ABGELMAN`, so the capture shows "No matches found" and an empty evidence lens; it does **not** verify successful search-result selection or evidence inspection. A labeled spelling-suggestion fallback was added in response. The app server must be restarted to reload the seed/search change.
 - After the spelling-suggestion change, `python3 -m unittest discover -s tests -v` passed 15 tests and `node --check web/app.js` passed.
 - A later user-provided capture with the correct Angelman query shows the selected Angelman–UBE3A relationship in the evidence lens, including its MedlinePlus source, section locator, retrieval date, and limitation. The capture shows the ablation button but not its result; source-link navigation and export remain untested.
+- The user then reported the ablation result: "Biological route no longer supported in this seed" and "Independent LADDER collaboration route remains." A direct local data-flow check passed search → graph → evidence → Action Brief → counterfactual; all 15 unit tests passed again. This does not verify the live OpenAI call or source-link navigation.
+- The user reports the API-key problem is closed, but this repository has no `.env.local` and OpenAI drafting is disabled in this task environment. The running Mac server may have different environment variables; its live status and a real generated candidate have not been observed here.
 
 ## Decisions held
 
