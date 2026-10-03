@@ -23,6 +23,8 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 - No live OpenAI API call has been made; the key is not configured in this workspace.
 - No remote, push, deployment, or submission has been created.
 - Independent code review found four issues; local paid-call enablement, incomplete/refusal handling, Angelman-only live UI scope, and provenance-log failure handling were addressed before committing.
+- The user supplied a one-page full-site PDF capture. It visibly renders the Action Brief and three LADDER access cards without obvious clipping. Its query is `ABGELMAN`, so the capture shows "No matches found" and an empty evidence lens; it does **not** verify successful search-result selection or evidence inspection. A labeled spelling-suggestion fallback was added in response. The app server must be restarted to reload the seed/search change.
+- After the spelling-suggestion change, `python3 -m unittest discover -s tests -v` passed 15 tests and `node --check web/app.js` passed.
 
 ## Decisions held
 

@@ -40,8 +40,8 @@
     }
   ],
   "nodes": [
-    {"id": "angelman", "type": "disease", "label": "Angelman syndrome", "description": "A neurodevelopmental condition with several molecular causes involving deficient maternal UBE3A function or expression.", "aliases": ["AS"]},
-    {"id": "dup15q", "type": "disease", "label": "Dup15q syndrome", "description": "A condition associated with one or more extra maternal copies of chromosome 15q11.2–q13.1; the duplicated region spans multiple genes.", "aliases": ["15q11-q13 duplication syndrome", "maternal dup15q"]},
+    {"id": "angelman", "type": "disease", "label": "Angelman syndrome", "description": "A neurodevelopmental condition with several molecular causes involving deficient maternal UBE3A function or expression.", "aliases": ["AS", "Angelman"]},
+    {"id": "dup15q", "type": "disease", "label": "Dup15q syndrome", "description": "A condition associated with one or more extra maternal copies of chromosome 15q11.2–q13.1; the duplicated region spans multiple genes.", "aliases": ["Dup15q", "15q11-q13 duplication syndrome", "maternal dup15q"]},
     {"id": "ube3a", "type": "gene", "label": "UBE3A", "description": "A gene implicated in Angelman syndrome and located in the duplicated chromosome-15 region.", "aliases": []},
     {"id": "locus15q", "type": "locus", "label": "15q11.2–q13.1", "description": "Chromosome region relevant to both conditions; sharing a locus does not imply a shared therapy.", "aliases": ["15q11-q13"]},
     {"id": "ladder", "type": "research asset", "label": "LADDER", "description": "An existing Angelman–Dup15q data collaboration, not a connection discovered by this prototype.", "aliases": ["Linking Angelman and Dup15q Data for Expanded Research"]},

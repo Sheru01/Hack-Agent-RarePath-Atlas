@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from collections import deque
+from difflib import SequenceMatcher
 from pathlib import Path
 
 
@@ -50,12 +51,20 @@ class Atlas:
             terms = [node["label"], *node.get("aliases", [])]
             if any(needle in term.casefold() for term in terms):
                 hits.append({key: node[key] for key in ("id", "type", "label", "description")})
+        if not hits and len(needle) >= 4:
+            for node in self.nodes.values():
+                terms = [node["label"], *node.get("aliases", [])]
+                scores = [SequenceMatcher(None, needle, term.casefold()).ratio()
+                          for term in terms if abs(len(term) - len(needle)) <= 2]
+                if scores and max(scores) >= 0.82:
+                    hits.append({**{key: node[key] for key in ("id", "type", "label", "description")},
+                                 "match_kind": "spelling_suggestion"})
         return sorted(hits, key=lambda item: (
             item["label"].casefold() != needle,
             not item["label"].casefold().startswith(needle),
             item["type"] != "disease",
             len(item["label"]),
-        ))
+        ))[:5]
 
     def graph(self, focus: str) -> dict:
         if focus not in self.nodes:

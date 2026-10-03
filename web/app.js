@@ -299,8 +299,9 @@ async function search(query) {
   try {
     const data = await getJson(`/api/search?q=${encodeURIComponent(query.trim())}`);
     if ($("#search-input").value.trim() !== query.trim()) return;
-    target.replaceChildren(el("div", "result-head", "Search results"));
     const results = Array.isArray(data.results) ? data.results : [];
+    const suggestionsOnly = results.length && results.every((item) => item.match_kind === "spelling_suggestion");
+    target.replaceChildren(el("div", "result-head", suggestionsOnly ? "Possible spelling matches — choose carefully" : "Search results"));
     if (!results.length) {
       target.append(el("p", "empty-state", "No matches found. Try another research term."));
       return;

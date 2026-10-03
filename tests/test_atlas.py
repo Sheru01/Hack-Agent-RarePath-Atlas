@@ -24,6 +24,11 @@ class AtlasTests(unittest.TestCase):
         self.assertEqual(self.atlas.search("UBE3A")[0]["id"], "ube3a")
         self.assertEqual(self.atlas.search("not-in-seed"), [])
 
+    def test_near_miss_is_labeled_as_suggestion_not_autoselected(self):
+        results = self.atlas.search("ABGELMAN")
+        self.assertEqual(results[0]["id"], "angelman")
+        self.assertEqual(results[0]["match_kind"], "spelling_suggestion")
+
     def test_biological_and_collaboration_routes_are_independent(self):
         biology = self.atlas.path("angelman", "dup15q", {"angelman-ladder", "dup15q-ladder"})
         self.assertEqual(biology, ["angelman-ube3a", "ube3a-locus", "dup15q-locus"])
