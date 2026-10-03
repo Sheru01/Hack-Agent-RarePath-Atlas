@@ -19,6 +19,7 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 - `python3 -m unittest discover -s tests -v`: 14 tests passed after review fixes.
 - `node --check web/app.js`: passed.
 - Starting the local HTTP server inside this task sandbox returned `PermissionError: [Errno 1] Operation not permitted` while binding to `127.0.0.1`. Browser rendering is therefore **not verified here**; run `./start.sh` in a normal Mac Terminal to complete that check.
+- The user subsequently confirmed that `http://127.0.0.1:8765/` opens on their Mac. This confirms the page loads for them, not that search, evidence inspection, or export passed. Browser automation access was denied, so no agent-observed visual or interaction check is claimed.
 - No live OpenAI API call has been made; the key is not configured in this workspace.
 - No remote, push, deployment, or submission has been created.
 - Independent code review found four issues; local paid-call enablement, incomplete/refusal handling, Angelman-only live UI scope, and provenance-log failure handling were addressed before committing.
