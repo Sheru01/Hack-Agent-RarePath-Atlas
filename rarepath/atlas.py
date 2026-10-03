@@ -36,6 +36,8 @@ class Atlas:
                 raise AtlasError(f"dangling edge: {edge['id']}")
             if edge["source_id"] not in self.sources:
                 raise AtlasError(f"missing source for edge: {edge['id']}")
+            if any(source_id not in self.sources for source_id in edge.get("supporting_source_ids", [])):
+                raise AtlasError(f"missing supporting source for edge: {edge['id']}")
             if not edge.get("summary") or not edge.get("limitation") or not edge.get("source_locator"):
                 raise AtlasError(f"incomplete evidence for edge: {edge['id']}")
         for source in self.sources.values():
@@ -77,7 +79,11 @@ class Atlas:
         if edge_id not in self.edges:
             raise AtlasError("unknown edge")
         edge = self.edges[edge_id]
-        return {**edge, "source": self.sources[edge["source_id"]]}
+        return {
+            **edge,
+            "source": self.sources[edge["source_id"]],
+            "supporting_sources": [self.sources[source_id] for source_id in edge.get("supporting_source_ids", [])],
+        }
 
     def path(self, start: str, end: str, omit_edges: set[str] | None = None) -> list[str]:
         if start not in self.nodes or end not in self.nodes:
@@ -139,7 +145,7 @@ class Atlas:
             "access": [
                 {"level": 1, "name": "Preview dashboard", "requirements": "No Data Access Committee (DAC) approval."},
                 {"level": 2, "name": "De-identified datasets", "requirements": "DAC approval, IRB approval, and signed data-use agreement."},
-                {"level": 3, "name": "Recruitment support", "requirements": "DAC and IRB approval."},
+                {"level": 3, "name": "Recruitment support", "requirements": "DAC review and evidence of IRB approval. LADDER staff distribute approved study materials to eligible participants."},
             ],
             "sources": [self.sources[key] for key in ("medline-angelman", "medline-dup15q", "ladder-about", "ladder-researchers")],
             "disclaimer": "Research scoping only. Not medical advice, a treatment recommendation, or permission to access patient data.",

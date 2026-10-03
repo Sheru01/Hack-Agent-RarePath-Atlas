@@ -24,6 +24,13 @@ class AtlasTests(unittest.TestCase):
         self.assertEqual(self.atlas.search("UBE3A")[0]["id"], "ube3a")
         self.assertEqual(self.atlas.search("not-in-seed"), [])
 
+    def test_coordinate_comparison_discloses_both_sources_and_inference(self):
+        evidence = self.atlas.evidence("ube3a-locus")
+        self.assertEqual(evidence["source"]["id"], "ncbi-ube3a")
+        self.assertEqual([source["id"] for source in evidence["supporting_sources"]], ["medline-dup15q"])
+        self.assertIn("inference", evidence["basis"])
+        self.assertIn("not a claim quoted", evidence["summary"])
+
     def test_near_miss_is_labeled_as_suggestion_not_autoselected(self):
         results = self.atlas.search("ABGELMAN")
         self.assertEqual(results[0]["id"], "angelman")
@@ -44,6 +51,7 @@ class AtlasTests(unittest.TestCase):
     def test_brief_marks_governance_and_uncertainty(self):
         brief = self.atlas.brief("angelman")
         self.assertEqual([item["level"] for item in brief["access"]], [1, 2, 3])
+        self.assertIn("LADDER staff", brief["access"][2]["requirements"])
         self.assertIn("existing", brief["asset"]["description"])
         self.assertIn("medical advice", brief["disclaimer"])
         self.assertTrue(brief["unknown"])

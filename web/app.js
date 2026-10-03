@@ -155,6 +155,10 @@ async function selectEdge(edgeId) {
     source.append(makeLink(evidence.source?.title || "Source not provided", evidence.source?.url, "source-link"));
     if (evidence.source_locator) source.append(el("span", "source-date", `Section: ${evidence.source_locator}`));
     if (evidence.source?.retrieved_at) source.append(el("span", "source-date", `Retrieved ${evidence.source.retrieved_at}`));
+    (evidence.supporting_sources || []).forEach((supporting) => {
+      source.append(el("span", "source-date", "Additional source for this comparison:"));
+      source.append(makeLink(supporting.title || "Supporting source", supporting.url, "source-link"));
+    });
     target.append(source);
     const limitation = el("div", "evidence-section");
     limitation.append(el("h4", "", "What this does not establish"));
@@ -170,7 +174,7 @@ async function selectEdge(edgeId) {
         try {
           const result = await getJson(`/api/ablate/${encodeURIComponent(edgeId)}`);
           ablationResult.replaceChildren();
-          ablationResult.append(el("strong", "", "Counterfactual check"));
+          ablationResult.append(el("strong", "", "Route check · graph connectivity only, not a biological experiment"));
           ablationResult.append(el("p", "", result.biological_route_after.length
             ? "Biological route still supported in this seed."
             : "Biological route no longer supported in this seed."));

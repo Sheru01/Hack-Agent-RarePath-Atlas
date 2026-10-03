@@ -56,6 +56,7 @@ class OpenAITests(unittest.TestCase):
             self.assertIn("candidate_requires_human_review", logged)
             sent = json.loads(request.call_args.args[0].data)
             self.assertEqual(sent["text"]["format"]["type"], "json_schema")
+            self.assertIn("free dashboard preview without DAC permission", sent["input"])
 
     def test_unsupported_citation_is_rejected(self):
         candidate = {"draft_question": "Question?", "uncertainty": "Unknown.", "source_ids": ["invented-source"]}

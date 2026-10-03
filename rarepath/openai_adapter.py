@@ -59,7 +59,7 @@ def generate_scoping_candidate(atlas: Atlas) -> dict:
             {"source_id": "medline-angelman", "fact": atlas.edges["angelman-ube3a"]["summary"]},
             {"source_id": "medline-dup15q", "fact": atlas.edges["dup15q-locus"]["summary"]},
             {"source_id": "ladder-about", "fact": atlas.edges["angelman-ladder"]["summary"]},
-            {"source_id": "ladder-researchers", "fact": "LADDER describes three governed access levels: dashboard preview, de-identified datasets, and recruitment support."},
+            {"source_id": "ladder-researchers", "fact": "LADDER lists three access levels: a free dashboard preview without DAC permission; de-identified datasets after DAC and IRB approval plus a signed data-use agreement; and recruitment support after DAC review and evidence of IRB approval, with LADDER staff distributing approved materials."},
         ],
     }
     prompt = (
