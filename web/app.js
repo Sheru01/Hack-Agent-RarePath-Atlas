@@ -59,6 +59,15 @@ function shorten(value, max = 18) {
   return text.length > max ? text.slice(0, max - 1) + "…" : text;
 }
 
+// Presentation helper: a stable CSS hook per entity type (e.g. "research asset" -> "type-research-asset").
+function typeClass(type) {
+  return "type-" + String(type || "entity").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
+}
+
+function nodeLabel(nodeId) {
+  return state.graph?.nodes?.find((node) => node.id === nodeId)?.label || nodeId || "Research entity";
+}
+
 function drawMap(graph) {
   const target = $("#map-visual");
   target.replaceChildren();
@@ -71,35 +80,46 @@ function drawMap(graph) {
 
   const focusId = graph.focus?.id || state.node;
   const ordered = [...nodes].sort((a, b) => (a.id === focusId ? -1 : b.id === focusId ? 1 : 0));
-  const center = { x: 450, y: 205 };
+  const center = { x: 450, y: 300 };
   const positions = new Map();
   positions.set(ordered[0].id, center);
   const others = ordered.slice(1);
   others.forEach((node, index) => {
     const angle = -Math.PI / 2 + (Math.PI * 2 * index) / Math.max(others.length, 1);
-    positions.set(node.id, { x: center.x + 310 * Math.cos(angle), y: center.y + 142 * Math.sin(angle) });
+    positions.set(node.id, { x: center.x + 310 * Math.cos(angle), y: center.y + 238 * Math.sin(angle) });
   });
 
-  const art = svg("svg", { viewBox: "0 0 900 410", role: "img", "aria-label": `Relationship map centered on ${graph.focus?.label || ordered[0].label || "selected topic"}` });
-  art.append(svg("ellipse", { cx: 450, cy: 205, rx: 385, ry: 184, fill: "none", stroke: "#dfeae5", "stroke-dasharray": "4 7" }));
+  const art = svg("svg", { viewBox: "0 0 900 600", role: "img", "aria-label": `Relationship map centered on ${graph.focus?.label || ordered[0].label || "selected topic"}` });
+  art.append(svg("ellipse", { cx: 450, cy: 300, rx: 392, ry: 280, fill: "none", stroke: "#dfeae5", "stroke-dasharray": "4 7" }));
   edges.forEach((edge) => {
     const from = positions.get(edge.source);
     const to = positions.get(edge.target);
     if (!from || !to) return;
-    const line = svg("line", { x1: from.x, y1: from.y, x2: to.x, y2: to.y, class: `svg-edge${edge.id === state.selectedEdge ? " selected" : ""}` });
+    // Gentle curve so overlapping relationships stay distinguishable.
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const bend = 0.12 * length;
+    const cx = (from.x + to.x) / 2 - (dy / length) * bend;
+    const cy = (from.y + to.y) / 2 + (dx / length) * bend;
+    const line = svg("path", { d: `M${from.x} ${from.y} Q${cx} ${cy} ${to.x} ${to.y}`, class: `svg-edge${edge.id === state.selectedEdge ? " selected" : ""}` });
     art.append(line);
   });
   ordered.forEach((node) => {
     const position = positions.get(node.id);
     const isFocus = node.id === focusId;
     const group = svg("g");
-    const className = `svg-node${isFocus ? " focus" : ""} ${String(node.type || "").toLowerCase()}`;
-    group.append(svg("rect", { x: position.x - (isFocus ? 98 : 82), y: position.y - 32, width: isFocus ? 196 : 164, height: 64, rx: 17, class: className }));
-    const label = svg("text", { x: position.x, y: position.y + 4, "text-anchor": "middle", class: "svg-label" });
-    label.textContent = shorten(node.label || node.id, isFocus ? 25 : 19);
+    const className = `svg-node${isFocus ? " focus" : ""} ${typeClass(node.type)}`;
+    group.setAttribute("class", `svg-node-group ${typeClass(node.type)}`);
+    const width = isFocus ? 216 : 200;
+    const left = position.x - width / 2;
+    group.append(svg("rect", { x: left, y: position.y - 32, width, height: 64, rx: 18, class: className }));
+    group.append(svg("circle", { cx: left + 18, cy: position.y, r: 5, class: "svg-dot" }));
+    const label = svg("text", { x: left + 32, y: position.y + 4, class: "svg-label" });
+    label.textContent = shorten(node.label || node.id, isFocus ? 25 : 23);
     group.append(label);
-    const type = svg("text", { x: position.x, y: position.y + 19, "text-anchor": "middle", class: "svg-type" });
-    type.textContent = shorten(node.type || "entity", 18);
+    const type = svg("text", { x: left + 32, y: position.y + 19, class: "svg-type" });
+    type.textContent = shorten(node.type || "entity", 22);
     group.append(type);
     const title = svg("title");
     title.textContent = `${node.label || node.id}: ${node.description || node.type || "research entity"}`;
@@ -107,6 +127,8 @@ function drawMap(graph) {
     art.append(group);
   });
   target.append(art);
+  // When the map is wider than its container (narrow screens), start centred on the focus node.
+  if (target.scrollWidth > target.clientWidth) target.scrollLeft = (target.scrollWidth - target.clientWidth) / 2;
 }
 
 function renderEdges(graph) {
@@ -127,7 +149,9 @@ function renderEdges(graph) {
     button.setAttribute("aria-pressed", String(edge.id === state.selectedEdge));
     button.setAttribute("aria-label", `Inspect evidence for ${source} to ${destination}: ${edge.label || "relationship"}`);
     const copy = el("span");
-    copy.append(el("span", "edge-title", `${source} → ${destination}`));
+    const title = el("span", "edge-title");
+    title.append(el("i", `dot ${typeClass(nodes.get(edge.source)?.type)}`), document.createTextNode(source), el("span", "edge-sep", "→"), el("i", `dot ${typeClass(nodes.get(edge.target)?.type)}`), document.createTextNode(destination));
+    copy.append(title);
     copy.append(el("span", "edge-meta", edge.label || edge.basis || "Inspect relationship"));
     button.append(copy, el("span", "edge-arrow", "↗"));
     button.addEventListener("click", () => selectEdge(edge.id));
@@ -147,10 +171,17 @@ async function selectEdge(edgeId) {
     if (state.selectedEdge !== edgeId) return;
     target.replaceChildren();
     target.append(el("p", "evidence-overline", "Selected relationship"));
+    // The evidence payload replaces `source` with the citation object, so read endpoints from the loaded graph.
+    const edgeMeta = state.graph?.edges?.find((edge) => edge.id === edgeId);
+    if (edgeMeta) {
+      const route = el("p", "evidence-route");
+      route.append(el("span", "route-node", nodeLabel(edgeMeta.source)), el("span", "route-arrow", "→"), el("span", "route-node", nodeLabel(edgeMeta.target)));
+      target.append(route);
+    }
     target.append(el("h3", "", evidence.label || "Research relationship"));
     if (evidence.basis) target.append(el("span", "basis-pill", evidence.basis));
-    if (evidence.summary) target.append(el("p", "", evidence.summary));
-    const source = el("div", "evidence-section");
+    if (evidence.summary) target.append(el("p", "evidence-summary", evidence.summary));
+    const source = el("div", "evidence-section evidence-source");
     source.append(el("h4", "", "Source"));
     source.append(makeLink(evidence.source?.title || "Source not provided", evidence.source?.url, "source-link"));
     if (evidence.source_locator) source.append(el("span", "source-date", `Section: ${evidence.source_locator}`));
@@ -160,10 +191,15 @@ async function selectEdge(edgeId) {
       source.append(makeLink(supporting.title || "Supporting source", supporting.url, "source-link"));
     });
     target.append(source);
-    const limitation = el("div", "evidence-section");
+    const limitation = el("div", "evidence-section evidence-limit");
     limitation.append(el("h4", "", "What this does not establish"));
     limitation.append(el("p", "", evidence.limitation || "A mapped relationship alone does not establish clinical benefit or therapy equivalence."));
     target.append(limitation);
+    const next = el("div", "evidence-section evidence-next");
+    next.append(el("h4", "", "Next step"));
+    const nextLink = el("a", "next-link", "Carry this into the action brief");
+    nextLink.href = "#brief";
+    next.append(nextLink);
     if (["angelman-ube3a", "ube3a-locus", "dup15q-locus", "angelman-ladder", "dup15q-ladder"].includes(edgeId)) {
       const ablateButton = el("button", "ablate-button", "What if this edge is removed?");
       ablateButton.type = "button";
@@ -188,6 +224,11 @@ async function selectEdge(edgeId) {
         }
       });
       target.append(ablateButton, ablationResult);
+    }
+    target.append(next);
+    // On narrow screens the lens sits below the map; bring it into view so the selection is visible.
+    if (window.matchMedia("(max-width: 760px)").matches) {
+      target.closest(".evidence-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   } catch {
     if (state.selectedEdge === edgeId) showError(target, "Evidence could not be loaded.", () => selectEdge(edgeId));
@@ -252,8 +293,8 @@ function renderBrief(brief) {
   target.append(columns);
 
   const bottom = el("div", "brief-bottom");
-  const asset = el("div");
-  asset.append(el("h4", "", "Research asset"));
+  const asset = el("div", "brief-next");
+  asset.append(el("h4", "", "Next step · research asset"));
   if (brief.asset) {
     asset.append(makeLink(brief.asset.name || "Explore asset", brief.asset.url));
     if (brief.asset.description) asset.append(el("p", "", brief.asset.description));
@@ -284,7 +325,7 @@ function renderAccess(levels) {
   }
   levels.forEach((level) => {
     const card = el("article", "access-card");
-    card.append(el("div", "access-number", String(level.level ?? "—").padStart(2, "0")));
+    card.append(el("div", "access-number", level.level === undefined || level.level === null ? "Level" : `Level ${level.level}`));
     card.append(el("h3", "", level.name || "Access level"));
     card.append(el("p", "", Array.isArray(level.requirements) ? level.requirements.join(" · ") : level.requirements || "Ask the asset holder about requirements."));
     target.append(card);
@@ -380,6 +421,14 @@ $("#search-input").addEventListener("input", (event) => {
 });
 $("#print-brief").addEventListener("click", () => window.print());
 $("#generate-question").addEventListener("click", generateQuestion);
+// Guided demo entry point: load the default topic and open the first relationship so the lens is populated.
+$("#hero-demo").addEventListener("click", async () => {
+  $("#search-input").value = "Angelman syndrome";
+  $("#search-results").hidden = true;
+  $("#map").scrollIntoView({ behavior: "smooth", block: "start" });
+  await loadGraph(DEFAULT_NODE);
+  if (state.graph?.edges?.some((edge) => edge.id === "angelman-ube3a")) selectEdge("angelman-ube3a");
+});
 
 loadGraph();
 checkStatus();
