@@ -36,17 +36,27 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         parsed = urlsplit(self.path)
-        query = parse_qs(parsed.query)
+        query = parse_qs(parsed.query, keep_blank_values=True)
         path = parsed.path
         try:
             if path == "/api/status":
                 return self.send_json({"openai_configured": configured(), "seed_version": self.atlas.data["version"], "mode": "deterministic_seed"})
             if path == "/api/search":
-                return self.send_json({"results": self.atlas.search(query.get("q", [""])[0])})
+                terms = query.get("q", [])
+                if len(terms) != 1 or not terms[0].strip():
+                    raise AtlasError("malformed search query")
+                results = self.atlas.search(terms[0])
+                return self.send_json({"results": results} if results else self.atlas.no_supported_route())
             if path == "/api/graph":
-                return self.send_json(self.atlas.graph(query.get("node", ["angelman"])[0]))
+                nodes = query.get("node", [])
+                if len(nodes) != 1 or not nodes[0].strip():
+                    raise AtlasError("malformed node id")
+                return self.send_json(self.atlas.graph(nodes[0]) if nodes[0] in self.atlas.nodes else self.atlas.no_supported_route())
             if path == "/api/brief":
-                return self.send_json(self.atlas.brief(query.get("node", ["angelman"])[0]))
+                nodes = query.get("node", [])
+                if len(nodes) != 1 or not nodes[0].strip():
+                    raise AtlasError("malformed node id")
+                return self.send_json(self.atlas.brief(nodes[0]) if nodes[0] in self.atlas.nodes else self.atlas.no_supported_route())
             if path.startswith("/api/evidence/"):
                 return self.send_json(self.atlas.evidence(path.removeprefix("/api/evidence/")))
             if path.startswith("/api/ablate/"):

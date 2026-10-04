@@ -317,6 +317,7 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
     $("#map-visual").replaceChildren(noRouteCard(graphResult.value, "Relationship map"));
     $("#connection-count").textContent = "00";
     $("#edge-list").replaceChildren(el("p", "empty-state", "No recorded relationships to inspect for this query."));
+    $("#evidence-content").replaceChildren(el("p", "empty-state", "This is a coverage limit, not evidence that no relationship exists."));
   } else if (graphResult.status === "fulfilled") {
     state.graph = graphResult.value;
     $("#focus-label").textContent = graphResult.value.focus?.label || nodeId;
@@ -462,7 +463,7 @@ async function search(query) {
       const copy = el("span");
       copy.append(el("strong", "", result.label || result.id));
       if (result.description) copy.append(el("small", "", result.description));
-      button.append(copy, el("span", "type-pill", result.type || "entity"));
+      button.append(copy, el("span", "type-pill", result.counterexample ? "Counterexample" : result.type || "entity"));
       button.addEventListener("click", () => {
         $("#search-input").value = result.label || result.id;
         target.hidden = true;
