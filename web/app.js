@@ -68,6 +68,52 @@ function nodeLabel(nodeId) {
   return state.graph?.nodes?.find((node) => node.id === nodeId)?.label || nodeId || "Research entity";
 }
 
+// Presentation only: map the seed's existing `basis` wording to one of three evidence classes.
+// "Question" is reserved for the brief's open items; it is never applied to a sourced edge.
+const EVIDENCE_CLASSES = {
+  stated: { label: "Stated", meaning: "Directly asserted by the cited source." },
+  inferred: { label: "Inferred", meaning: "RarePath combined two source-backed statements; the inference and its limits are shown." },
+  question: { label: "Question", meaning: "Not established. Needs a source, expert review, or more evidence." },
+};
+function evidenceClassOf(basis) {
+  return /infer/i.test(String(basis || "")) ? "inferred" : "stated";
+}
+function classBadge(key) {
+  const meta = EVIDENCE_CLASSES[key] || EVIDENCE_CLASSES.stated;
+  const badge = el("span", `evidence-class evidence-class-${key}`, meta.label);
+  badge.title = meta.meaning;
+  badge.setAttribute("aria-label", `${meta.label}: ${meta.meaning}`);
+  return badge;
+}
+
+// Shared card for the explicit "no supported route" payload.
+function noRouteCard(payload, heading) {
+  const card = el("div", "no-route");
+  card.append(el("p", "no-route-kicker", heading || "Nothing to show"));
+  card.append(el("h3", "", payload.message || "No supported route in the current evidence snapshot"));
+  const checked = el("div", "no-route-block");
+  checked.append(el("h4", "", "What RarePath checked"));
+  const list = el("ul");
+  const sources = Array.isArray(payload.checked_sources) && payload.checked_sources.length ? payload.checked_sources : ["the versioned evidence seed"];
+  sources.forEach((item) => list.append(el("li", "", typeof item === "string" ? item : item.title || item.id || "source")));
+  if (payload.seed_version) list.append(el("li", "", `Seed version ${payload.seed_version}`));
+  checked.append(list);
+  card.append(checked);
+  const meaning = el("div", "no-route-block");
+  meaning.append(el("h4", "", "What this does not mean"));
+  meaning.append(el("p", "", payload.not_negative_evidence === false
+    ? "A contradicting source was found; see the evidence lens."
+    : "It does not mean no relevant evidence exists in the wider literature. Absence from this snapshot is a gap, not negative evidence."));
+  card.append(meaning);
+  if (payload.next_step) {
+    const next = el("div", "no-route-block no-route-next");
+    next.append(el("h4", "", "Next research step"));
+    next.append(el("p", "", payload.next_step));
+    card.append(next);
+  }
+  return card;
+}
+
 function drawMap(graph) {
   const target = $("#map-visual");
   target.replaceChildren();
@@ -102,7 +148,7 @@ function drawMap(graph) {
     const bend = 0.12 * length;
     const cx = (from.x + to.x) / 2 - (dy / length) * bend;
     const cy = (from.y + to.y) / 2 + (dx / length) * bend;
-    const line = svg("path", { d: `M${from.x} ${from.y} Q${cx} ${cy} ${to.x} ${to.y}`, class: `svg-edge${edge.id === state.selectedEdge ? " selected" : ""}` });
+    const line = svg("path", { d: `M${from.x} ${from.y} Q${cx} ${cy} ${to.x} ${to.y}`, class: `svg-edge${edge.id === state.selectedEdge ? " selected" : ""}${edge.role === "counterexample" ? " counterexample" : ""}` });
     art.append(line);
   });
   ordered.forEach((node) => {
@@ -110,7 +156,7 @@ function drawMap(graph) {
     const isFocus = node.id === focusId;
     const group = svg("g");
     const className = `svg-node${isFocus ? " focus" : ""} ${typeClass(node.type)}`;
-    group.setAttribute("class", `svg-node-group ${typeClass(node.type)}`);
+    group.setAttribute("class", `svg-node-group ${typeClass(node.type)}${node.counterexample ? " is-counterexample" : ""}`);
     const width = isFocus ? 216 : 200;
     const left = position.x - width / 2;
     group.append(svg("rect", { x: left, y: position.y - 32, width, height: 64, rx: 18, class: className }));
@@ -119,7 +165,7 @@ function drawMap(graph) {
     label.textContent = shorten(node.label || node.id, isFocus ? 25 : 23);
     group.append(label);
     const type = svg("text", { x: left + 32, y: position.y + 19, class: "svg-type" });
-    type.textContent = shorten(node.type || "entity", 22);
+    type.textContent = node.counterexample ? "counterexample" : shorten(node.type || "entity", 22);
     group.append(type);
     const title = svg("title");
     title.textContent = `${node.label || node.id}: ${node.description || node.type || "research entity"}`;
@@ -152,7 +198,9 @@ function renderEdges(graph) {
     const title = el("span", "edge-title");
     title.append(el("i", `dot ${typeClass(nodes.get(edge.source)?.type)}`), document.createTextNode(source), el("span", "edge-sep", "→"), el("i", `dot ${typeClass(nodes.get(edge.target)?.type)}`), document.createTextNode(destination));
     copy.append(title);
-    copy.append(el("span", "edge-meta", edge.label || edge.basis || "Inspect relationship"));
+    const meta = el("span", "edge-meta", edge.label || edge.basis || "Inspect relationship");
+    if (edge.role === "counterexample") meta.prepend(el("span", "edge-tag", "Counterexample"));
+    copy.append(meta);
     button.append(copy, el("span", "edge-arrow", "↗"));
     button.addEventListener("click", () => selectEdge(edge.id));
     target.append(button);
@@ -179,7 +227,14 @@ async function selectEdge(edgeId) {
       target.append(route);
     }
     target.append(el("h3", "", evidence.label || "Research relationship"));
-    if (evidence.basis) target.append(el("span", "basis-pill", evidence.basis));
+    const basisRow = el("p", "basis-row");
+    basisRow.append(classBadge(evidenceClassOf(evidence.basis)));
+    if (evidence.basis) basisRow.append(el("span", "basis-pill", evidence.basis));
+    target.append(basisRow);
+    if (evidence.role === "counterexample" || edgeMeta?.role === "counterexample") {
+      const banner = el("p", "counterexample-banner", "Same region does not mean same mechanism. This relationship is shown so that proximity is not mistaken for a shared research route.");
+      target.append(banner);
+    }
     if (evidence.summary) target.append(el("p", "evidence-summary", evidence.summary));
     const source = el("div", "evidence-section evidence-source");
     source.append(el("h4", "", "Source"));
@@ -250,7 +305,13 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
     getJson(`/api/brief?node=${encodeURIComponent(nodeId)}`),
   ]);
   if (request !== state.request) return;
-  if (graphResult.status === "fulfilled") {
+  if (graphResult.status === "fulfilled" && graphResult.value?.status === "no_supported_route") {
+    state.graph = null;
+    $("#focus-label").textContent = nodeId;
+    $("#map-visual").replaceChildren(noRouteCard(graphResult.value, "Relationship map"));
+    $("#connection-count").textContent = "00";
+    $("#edge-list").replaceChildren(el("p", "empty-state", "No recorded relationships to inspect for this query."));
+  } else if (graphResult.status === "fulfilled") {
     state.graph = graphResult.value;
     $("#focus-label").textContent = graphResult.value.focus?.label || nodeId;
     drawMap(graphResult.value);
@@ -267,9 +328,36 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
   }
 }
 
+function renderTenx(tenx) {
+  const panel = el("div", "tenx");
+  panel.append(el("p", "eyebrow", "The 10× goal, stated as a hypothesis"));
+  panel.append(el("h3", "", tenx.goal || "Reach an expert-reviewed go/no-go decision faster."));
+  const columns = el("div", "tenx-columns");
+  [["Without the atlas", tenx.without, "without"], ["With the atlas", tenx.with, "with"], ["Not accelerated", tenx.not_accelerated, "not"]].forEach(([heading, items, key]) => {
+    const column = el("div", `tenx-column tenx-${key}`);
+    column.append(el("h4", "", heading));
+    const list = el("ol");
+    (Array.isArray(items) && items.length ? items : ["Not specified in this brief."]).forEach((item) => list.append(el("li", "", item)));
+    column.append(list);
+    columns.append(column);
+  });
+  panel.append(columns);
+  if (tenx.assumption) {
+    const note = el("p", "tenx-assumption");
+    note.append(el("strong", "", "Assumption. "), document.createTextNode(tenx.assumption));
+    panel.append(note);
+  }
+  return panel;
+}
+
 function renderBrief(brief) {
   const target = $("#brief-content");
   target.replaceChildren();
+  if (brief?.status === "no_supported_route") {
+    target.append(noRouteCard(brief, "Action brief"));
+    renderAccess(brief.access);
+    return;
+  }
   const top = el("div", "brief-top");
   const intro = el("div", "brief-intro");
   intro.append(el("p", "eyebrow", "Research snapshot"));
@@ -282,15 +370,26 @@ function renderBrief(brief) {
   target.append(top);
 
   const columns = el("div", "brief-columns");
-  [["What the sources indicate", brief.known], ["What remains uncertain", brief.unknown]].forEach(([heading, items]) => {
+  [["What the sources indicate", brief.known, "stated"], ["What remains uncertain", brief.unknown, "question"]].forEach(([heading, items, key]) => {
     const column = el("div", "brief-column");
-    column.append(el("h4", "", heading));
+    const h4 = el("h4", "", heading);
+    h4.append(classBadge(key));
+    column.append(h4);
     const list = el("ul");
     (Array.isArray(items) && items.length ? items : ["No details provided in this brief."]).forEach((item) => list.append(el("li", "", item)));
     column.append(list);
     columns.append(column);
   });
   target.append(columns);
+  if (Array.isArray(brief.not_prioritized) && brief.not_prioritized.length) {
+    const aside = el("div", "brief-not-prioritized");
+    aside.append(el("h4", "", "Looked at, not prioritized"));
+    const list = el("ul");
+    brief.not_prioritized.forEach((item) => list.append(el("li", "", typeof item === "string" ? item : item.text || item.label || "")));
+    aside.append(list);
+    target.append(aside);
+  }
+  if (brief.tenx && typeof brief.tenx === "object") target.append(renderTenx(brief.tenx));
 
   const bottom = el("div", "brief-bottom");
   const asset = el("div", "brief-next");
@@ -345,12 +444,12 @@ async function search(query) {
     const data = await getJson(`/api/search?q=${encodeURIComponent(query.trim())}`);
     if ($("#search-input").value.trim() !== query.trim()) return;
     const results = Array.isArray(data.results) ? data.results : [];
-    const suggestionsOnly = results.length && results.every((item) => item.match_kind === "spelling_suggestion");
-    target.replaceChildren(el("div", "result-head", suggestionsOnly ? "Possible spelling matches — choose carefully" : "Search results"));
-    if (!results.length) {
-      target.append(el("p", "empty-state", "No matches found. Try another research term."));
+    if (data.status === "no_supported_route" || !results.length) {
+      target.replaceChildren(noRouteCard({ ...data, message: data.message || "No supported route in the current evidence snapshot" }, "Search"));
       return;
     }
+    const suggestionsOnly = results.length && results.every((item) => item.match_kind === "spelling_suggestion");
+    target.replaceChildren(el("div", "result-head", suggestionsOnly ? "Possible spelling matches — choose carefully" : "Search results"));
     results.forEach((result) => {
       const button = el("button", "search-result");
       button.type = "button";
