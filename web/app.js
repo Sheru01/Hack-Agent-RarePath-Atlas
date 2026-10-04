@@ -512,8 +512,8 @@ async function checkStatus() {
     $("#api-status").textContent = status.openai_configured ? "Local AI drafting enabled" : "Research service connected";
     $("#generate-question").disabled = !state.openaiConfigured || state.node !== "angelman";
     $("#generation-status").textContent = status.openai_configured
-      ? "Optional live model draft. Human review required."
-      : "Live drafting requires your local OpenAI API key and explicit enable flag.";
+      ? "Live. Each press asks OpenAI for one new candidate question."
+      : "Not enabled on this server. Run locally with your own OpenAI key to try it.";
   } catch {
     $("#api-status").textContent = "Service status unavailable";
   }
@@ -535,6 +535,7 @@ async function generateQuestion() {
     if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`);
     target.replaceChildren();
     target.append(el("p", "eyebrow", "Candidate · Requires human review"));
+    button.querySelector(".ai-label")?.replaceChildren(document.createTextNode("Ask OpenAI for another question"));
     target.append(el("h3", "", result.candidate.draft_question));
     if (result.candidate.uncertainty) target.append(el("p", "candidate-uncertainty", `Uncertainty: ${result.candidate.uncertainty}`));
     if (result.warning) target.append(el("p", "candidate-warning", result.warning));

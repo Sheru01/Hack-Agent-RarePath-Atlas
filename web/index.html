@@ -249,10 +249,10 @@
             </div>
           </div>
           <div class="brief-actions">
-            <button id="generate-question" type="button" disabled><span class="ai-spark" aria-hidden="true">✦</span> Draft the next question with OpenAI</button>
+            <button id="generate-question" type="button" disabled><span class="ai-spark" aria-hidden="true">✦</span> <span class="ai-label">Draft the next question with OpenAI</span></button>
             <button id="print-brief" type="button">Print or save brief</button>
-            <span id="generation-status" role="status" aria-live="polite">Live drafting requires your local OpenAI API key and explicit enable flag.</span>
-            <span class="actions-note">The brief below comes from sources. An OpenAI draft is a candidate until a person reviews it.</span>
+            <span id="generation-status" role="status" aria-live="polite">Checking whether live drafting is available…</span>
+            <span class="actions-note">What this does: OpenAI reads the sourced brief below and drafts one research question you could bring to an expert. Press again for another candidate. Every draft is labelled, logged, and needs a person to review it. Nothing it writes enters the map.</span>
           </div>
           <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
           <div id="brief-content" class="brief-card" aria-live="polite">

@@ -9,6 +9,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import tempfile
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -135,11 +136,19 @@ def generate_scoping_candidate(atlas: Atlas) -> dict:
         "source_ids": cited,
         "status": "candidate_requires_human_review",
     }
+    # Provenance log: project-local by default; RAREPATH_RUN_DIR overrides it, and a read-only
+    # project directory (hosted runtimes) falls back to the system temp directory.
+    run_dir = Path(os.environ.get("RAREPATH_RUN_DIR", "") or ROOT / "run")
     try:
-        run_dir = ROOT / "run"
-        run_dir.mkdir(exist_ok=True)
+        run_dir.mkdir(parents=True, exist_ok=True)
         with (run_dir / "generations.jsonl").open("a", encoding="utf-8") as file:
             file.write(json.dumps(event, sort_keys=True) + "\n")
-    except OSError as exc:
-        raise ProviderError("OpenAI responded, but the provenance log could not be saved; candidate withheld.") from exc
+    except OSError:
+        try:
+            fallback = Path(tempfile.gettempdir()) / "rarepath-run"
+            fallback.mkdir(parents=True, exist_ok=True)
+            with (fallback / "generations.jsonl").open("a", encoding="utf-8") as file:
+                file.write(json.dumps(event, sort_keys=True) + "\n")
+        except OSError as exc:
+            raise ProviderError("OpenAI responded, but the provenance log could not be saved; candidate withheld.") from exc
     return {"candidate": candidate, "provenance": event, "warning": "Unverified model draft; not clinical guidance or an approved graph edge."}
