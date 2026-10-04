@@ -152,7 +152,7 @@ function renderEdges(graph) {
     const title = el("span", "edge-title");
     title.append(el("i", `dot ${typeClass(nodes.get(edge.source)?.type)}`), document.createTextNode(source), el("span", "edge-sep", "→"), el("i", `dot ${typeClass(nodes.get(edge.target)?.type)}`), document.createTextNode(destination));
     copy.append(title);
-    copy.append(el("span", "edge-meta", edge.label || edge.basis || "Inspect relationship"));
+    copy.append(el("span", "edge-meta", `${edge.role === "counterexample" ? "Counterexample · " : ""}${edge.label || edge.basis || "Inspect relationship"}`));
     button.append(copy, el("span", "edge-arrow", "↗"));
     button.addEventListener("click", () => selectEdge(edge.id));
     target.append(button);
@@ -251,17 +251,33 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
   ]);
   if (request !== state.request) return;
   if (graphResult.status === "fulfilled") {
-    state.graph = graphResult.value;
-    $("#focus-label").textContent = graphResult.value.focus?.label || nodeId;
-    drawMap(graphResult.value);
-    renderEdges(graphResult.value);
+    if (graphResult.value.status === "no_supported_route") {
+      state.graph = null;
+      $("#focus-label").textContent = "No supported route";
+      $("#map-visual").replaceChildren(el("p", "empty-state", graphResult.value.message));
+      $("#edge-list").replaceChildren();
+      $("#connection-count").textContent = "00";
+      $("#evidence-content").replaceChildren(el("p", "empty-state", "This is a coverage limit, not evidence that no relationship exists."));
+    } else {
+      state.graph = graphResult.value;
+      $("#focus-label").textContent = graphResult.value.focus?.label || nodeId;
+      drawMap(graphResult.value);
+      renderEdges(graphResult.value);
+    }
   } else {
     state.graph = null;
     $("#focus-label").textContent = "Map unavailable";
     showError($("#map-visual"), "The relationship map could not be loaded.", () => loadGraph(nodeId));
   }
-  if (briefResult.status === "fulfilled") renderBrief(briefResult.value);
-  else {
+  if (briefResult.status === "fulfilled") {
+    if (briefResult.value.status === "no_supported_route") {
+      $("#brief-content").replaceChildren(
+        el("p", "empty-state", briefResult.value.message),
+        el("p", "", briefResult.value.next_step),
+      );
+      $("#access-levels").replaceChildren();
+    } else renderBrief(briefResult.value);
+  } else {
     showError($("#brief-content"), "The action brief could not be loaded.", () => loadGraph(nodeId));
     $("#access-levels").replaceChildren(el("p", "empty-state", "Access requirements are unavailable for this topic."));
   }
@@ -344,6 +360,15 @@ async function search(query) {
   try {
     const data = await getJson(`/api/search?q=${encodeURIComponent(query.trim())}`);
     if ($("#search-input").value.trim() !== query.trim()) return;
+    if (data.status === "no_supported_route") {
+      target.replaceChildren(
+        el("div", "result-head", "No supported route"),
+        el("p", "empty-state", data.message),
+        el("p", "", "This is a coverage limit, not evidence that no relationship exists."),
+        el("p", "", data.next_step),
+      );
+      return;
+    }
     const results = Array.isArray(data.results) ? data.results : [];
     const suggestionsOnly = results.length && results.every((item) => item.match_kind === "spelling_suggestion");
     target.replaceChildren(el("div", "result-head", suggestionsOnly ? "Possible spelling matches — choose carefully" : "Search results"));
@@ -357,7 +382,7 @@ async function search(query) {
       const copy = el("span");
       copy.append(el("strong", "", result.label || result.id));
       if (result.description) copy.append(el("small", "", result.description));
-      button.append(copy, el("span", "type-pill", result.type || "entity"));
+      button.append(copy, el("span", "type-pill", result.counterexample ? "Counterexample" : result.type || "entity"));
       button.addEventListener("click", () => {
         $("#search-input").value = result.label || result.id;
         target.hidden = true;

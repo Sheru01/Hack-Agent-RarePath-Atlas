@@ -1,5 +1,5 @@
 {
-  "version": "2026-10-03-v2",
+  "version": "2026-10-03-v3",
   "scope": "Research-scoping demonstration; not clinical guidance",
   "sources": [
     {
@@ -12,6 +12,12 @@
       "id": "medline-dup15q",
       "title": "15q11-q13 duplication syndrome — MedlinePlus Genetics",
       "url": "https://medlineplus.gov/genetics/condition/15q11-q13-duplication-syndrome/",
+      "retrieved_at": "2026-10-03"
+    },
+    {
+      "id": "medline-pws",
+      "title": "Prader-Willi syndrome — MedlinePlus Genetics",
+      "url": "https://medlineplus.gov/genetics/condition/prader-willi-syndrome/",
       "retrieved_at": "2026-10-03"
     },
     {
@@ -42,15 +48,17 @@
   "nodes": [
     {"id": "angelman", "type": "disease", "label": "Angelman syndrome", "description": "A neurodevelopmental condition with several molecular causes involving deficient maternal UBE3A function or expression.", "aliases": ["AS", "Angelman"]},
     {"id": "dup15q", "type": "disease", "label": "Dup15q syndrome", "description": "A condition associated with one or more extra maternal copies of chromosome 15q11.2–q13.1; the duplicated region spans multiple genes.", "aliases": ["Dup15q", "15q11-q13 duplication syndrome", "maternal dup15q"]},
+    {"id": "pws", "type": "disease", "label": "Prader-Willi syndrome", "description": "A bounded counterexample involving loss of function of paternally active genes in the 15q11–q13 region; this is not a supported LADDER route.", "aliases": ["PWS", "Prader-Labhart-Willi syndrome"], "counterexample": true},
     {"id": "ube3a", "type": "gene", "label": "UBE3A", "description": "A gene involved in Angelman syndrome; this map compares its location with the Dup15q chromosome interval, without assigning Dup15q features to this gene.", "aliases": []},
     {"id": "locus15q", "type": "locus", "label": "15q11.2–q13.1", "description": "Chromosome region relevant to both conditions; sharing a locus does not imply a shared therapy.", "aliases": ["15q11-q13"]},
-    {"id": "ladder", "type": "research asset", "label": "LADDER", "description": "An existing Angelman–Dup15q data collaboration, not a connection discovered by this prototype.", "aliases": ["Linking Angelman and Dup15q Data for Expanded Research"]},
+    {"id": "ladder", "type": "research asset", "label": "LADDER", "description": "An existing Angelman–Dup15q data collaboration, not a connection discovered by this prototype.", "aliases": ["Linking Angelman and Dup15q Data for Expanded Research", "Linking Angelman and Dup15q Databases for Expanded Research"]},
     {"id": "asf", "type": "patient group", "label": "Angelman Syndrome Foundation", "description": "A LADDER collaboration partner.", "aliases": []},
     {"id": "dup15q-alliance", "type": "patient group", "label": "Dup15q Alliance", "description": "A LADDER collaboration partner.", "aliases": []},
     {"id": "rti", "type": "research organization", "label": "RTI International", "description": "Partner in developing LADDER.", "aliases": []}
   ],
   "edges": [
     {"id": "angelman-ube3a", "source": "angelman", "target": "ube3a", "label": "deficient maternal UBE3A function/expression", "basis": "sourced biological relationship", "summary": "Angelman syndrome can arise through several mechanisms that reduce maternal UBE3A function or expression.", "source_id": "medline-angelman", "source_locator": "Causes", "limitation": "Not all cases have the same molecular class; a single UBE3A statement cannot define patient eligibility."},
+    {"id": "angelman-pws", "source": "angelman", "target": "pws", "label": "same 15q11–q13 region; parent-of-origin differs", "basis": "inference from two sourced coordinates", "role": "counterexample", "summary": "MedlinePlus describes loss of paternally active genes in Prader-Willi syndrome and loss of maternal UBE3A function in Angelman syndrome. Both pages illustrate the 15q11.2–q13 region; comparing those locations is our inference, not a claim that all molecular classes or breakpoints match.", "source_id": "medline-pws", "supporting_source_ids": ["medline-angelman"], "source_locator": "Causes and chromosome-region illustration; compare Angelman syndrome Causes and illustration", "limitation": "The cited pages do not establish exact shared breakpoints for every case. Same region does not imply shared mechanism, therapy, endpoints, or registry reuse."},
     {"id": "ube3a-locus", "source": "ube3a", "target": "locus15q", "label": "coordinate overlap", "basis": "inference from two sourced coordinates", "summary": "NCBI Gene locates UBE3A at 15q11.2; MedlinePlus describes the Dup15q interval as 15q11.2–q13.1. The overlap is our comparison of those coordinates, not a claim quoted from either page.", "source_id": "ncbi-ube3a", "supporting_source_ids": ["medline-dup15q"], "source_locator": "Genomic context; compare MedlinePlus Causes", "limitation": "Coordinate overlap alone does not establish which genes drive Dup15q features or whether a therapy transfers."},
     {"id": "dup15q-locus", "source": "dup15q", "target": "locus15q", "label": "maternal copy-number gain", "basis": "sourced biological relationship", "summary": "Dup15q involves extra maternal copies of a region containing multiple genes.", "source_id": "medline-dup15q", "source_locator": "Causes", "limitation": "Dup15q is not a synonym for UBE3A gain; the duplicated interval spans several genes."},
     {"id": "angelman-ladder", "source": "angelman", "target": "ladder", "label": "existing cohort collaboration", "basis": "documented research infrastructure", "summary": "LADDER already brings together Angelman and Dup15q research data.", "source_id": "ladder-about", "source_locator": "About LADDER", "limitation": "This is an existing collaboration, not a novel discovery by RarePath."},

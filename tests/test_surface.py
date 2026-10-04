@@ -41,13 +41,39 @@ class SurfaceTests(unittest.TestCase):
                 self.assertEqual(seen[0][0], 200)
                 self.assertIn(expected_key, seen[0][1])
 
-    def test_unknown_api_route_fails_closed(self):
-        handler = object.__new__(Handler)
-        handler.path = "/api/brief?node=not-in-seed"
-        seen = []
-        handler.send_json = lambda payload, status=200: seen.append((status, payload))
-        handler.do_GET()
-        self.assertEqual(seen[0][0], 404)
+    def test_unknown_seed_queries_return_an_explicit_coverage_boundary(self):
+        for path in (
+            "/api/graph?node=not-in-seed",
+            "/api/brief?node=not-in-seed",
+            "/api/search?q=not-in-seed",
+        ):
+            with self.subTest(path=path):
+                handler = object.__new__(Handler)
+                handler.path = path
+                seen = []
+                handler.send_json = lambda payload, status=200: seen.append((status, payload))
+                handler.do_GET()
+                self.assertEqual(seen[0][0], 200)
+                self.assertEqual(seen[0][1], handler.atlas.no_supported_route())
+
+    def test_malformed_queries_and_unknown_endpoints_remain_404(self):
+        for path in (
+            "/api/search",
+            "/api/search?q=",
+            "/api/search?q=Angelman&q=Dup15q",
+            "/api/graph",
+            "/api/graph?node=",
+            "/api/brief",
+            "/api/brief?node=",
+            "/api/not-an-endpoint",
+        ):
+            with self.subTest(path=path):
+                handler = object.__new__(Handler)
+                handler.path = path
+                seen = []
+                handler.send_json = lambda payload, status=200: seen.append((status, payload))
+                handler.do_GET()
+                self.assertEqual(seen[0][0], 404)
 
 
 if __name__ == "__main__":

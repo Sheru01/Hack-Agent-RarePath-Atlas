@@ -34,6 +34,8 @@ class Atlas:
         for edge in self.edges.values():
             if edge["source"] not in self.nodes or edge["target"] not in self.nodes:
                 raise AtlasError(f"dangling edge: {edge['id']}")
+            if any(self.nodes[node_id].get("counterexample") for node_id in (edge["source"], edge["target"])) and edge.get("role") != "counterexample":
+                raise AtlasError(f"counterexample edge missing role: {edge['id']}")
             if edge["source_id"] not in self.sources:
                 raise AtlasError(f"missing source for edge: {edge['id']}")
             if any(source_id not in self.sources for source_id in edge.get("supporting_source_ids", [])):
@@ -52,7 +54,8 @@ class Atlas:
         for node in self.nodes.values():
             terms = [node["label"], *node.get("aliases", [])]
             if any(needle in term.casefold() for term in terms):
-                hits.append({key: node[key] for key in ("id", "type", "label", "description")})
+                hits.append({**{key: node[key] for key in ("id", "type", "label", "description")},
+                             **({"counterexample": True} if node.get("counterexample") else {})})
         if not hits and len(needle) >= 4:
             for node in self.nodes.values():
                 terms = [node["label"], *node.get("aliases", [])]
@@ -60,6 +63,7 @@ class Atlas:
                           for term in terms if abs(len(term) - len(needle)) <= 2]
                 if scores and max(scores) >= 0.82:
                     hits.append({**{key: node[key] for key in ("id", "type", "label", "description")},
+                                 **({"counterexample": True} if node.get("counterexample") else {}),
                                  "match_kind": "spelling_suggestion"})
         return sorted(hits, key=lambda item: (
             item["label"].casefold() != needle,
@@ -96,7 +100,8 @@ class Atlas:
             if current == end:
                 return path
             for edge in self.edges.values():
-                if edge["id"] in omitted:
+                # A counterexample is inspectable evidence, never an action-route bridge.
+                if edge["id"] in omitted or edge.get("role") == "counterexample":
                     continue
                 neighbor = None
                 if edge["source"] == current:
@@ -111,6 +116,26 @@ class Atlas:
     def brief(self, focus: str) -> dict:
         if focus not in self.nodes:
             raise AtlasError("unknown node")
+        tenx = {
+            "goal": "Reach an expert-reviewed go/no-go decision on a scoped shared natural-history comparison between two patient communities.",
+            "without": [
+                "Locate an adjacent community through manual literature searches and introductions.",
+                "Qualify overlap by reading papers, asset descriptions, and access rules.",
+                "Draft and revise a question for expert review.",
+            ],
+            "with": [
+                "Use typed search to find a sourced candidate relationship.",
+                "Inspect source-backed paths, limitations, and asset access.",
+                "Prepare an editable, cited Action Brief for expert review.",
+            ],
+            "not_accelerated": [
+                "Expert review and response.",
+                "Data-use and IRB approvals.",
+                "Cohort harmonization.",
+                "Clinical study execution.",
+            ],
+            "assumption": "For supported routes only, faster discovery and framing is a hypothesis until comparable manual and prototype tasks are measured; it does not claim faster end-to-end research progress.",
+        }
         if focus not in ("angelman", "dup15q"):
             return {
                 "title": f"{self.nodes[focus]['label']}: coverage boundary",
@@ -121,6 +146,7 @@ class Atlas:
                 "asset": None,
                 "access": [],
                 "sources": [],
+                "tenx": tenx,
                 "disclaimer": "Research scoping only. Not medical advice or a treatment recommendation.",
             }
         return {
@@ -135,6 +161,7 @@ class Atlas:
                 "Which phenotype measures are sufficiently harmonized across the two cohorts?",
                 "Which molecular subgroups can be compared responsibly?",
                 "Whether any specific therapy transfers between conditions; this prototype makes no such claim.",
+                "Prader-Willi syndrome is a chromosome-15 counterexample, not a prioritized LADDER route; the sourced comparison does not establish shared mechanism, endpoints, therapy, or registry reuse.",
             ],
             "question": "Can the LADDER investigators compare a shared, precisely defined phenotype measure across molecularly stratified Angelman and Dup15q cohorts, and identify where the comparison is invalid?",
             "asset": {
@@ -147,8 +174,19 @@ class Atlas:
                 {"level": 2, "name": "De-identified datasets", "requirements": "DAC approval, IRB approval, and signed data-use agreement."},
                 {"level": 3, "name": "Recruitment support", "requirements": "DAC review and evidence of IRB approval. LADDER staff distribute approved study materials to eligible participants."},
             ],
-            "sources": [self.sources[key] for key in ("medline-angelman", "medline-dup15q", "ladder-about", "ladder-researchers")],
+            "sources": [self.sources[key] for key in ("medline-angelman", "medline-dup15q", "medline-pws", "ladder-about", "ladder-researchers")],
+            "tenx": tenx,
             "disclaimer": "Research scoping only. Not medical advice, a treatment recommendation, or permission to access patient data.",
+        }
+
+    def no_supported_route(self) -> dict:
+        return {
+            "status": "no_supported_route",
+            "checked_sources": list(self.sources),
+            "seed_version": self.data["version"],
+            "message": "No supported route in the current evidence snapshot",
+            "not_negative_evidence": True,
+            "next_step": "Try a synonym or review additional primary sources with a qualified researcher before adding a route.",
         }
 
     def ablate(self, edge_id: str) -> dict:
