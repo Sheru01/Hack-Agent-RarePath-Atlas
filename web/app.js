@@ -89,7 +89,7 @@ function classBadge(key) {
 // Shared card for the explicit "no supported route" payload.
 function noRouteCard(payload, heading) {
   const card = el("div", "no-route");
-  card.append(el("p", "no-route-kicker", heading || "Nothing to show"));
+  card.append(el("p", "no-route-kicker", `${heading || "Result"} · Coverage boundary`));
   card.append(el("h3", "", payload.message || "No supported route in the current evidence snapshot"));
   const checked = el("div", "no-route-block");
   checked.append(el("h4", "", "What RarePath checked"));
@@ -150,6 +150,20 @@ function drawMap(graph) {
     const cy = (from.y + to.y) / 2 + (dx / length) * bend;
     const line = svg("path", { d: `M${from.x} ${from.y} Q${cx} ${cy} ${to.x} ${to.y}`, class: `svg-edge${edge.id === state.selectedEdge ? " selected" : ""}${edge.role === "counterexample" ? " counterexample" : ""}` });
     art.append(line);
+    if (edge.role === "counterexample") {
+      // Point on the quadratic curve at t = 0.5, so the marker sits on the drawn line.
+      const mx = 0.25 * from.x + 0.5 * cx + 0.25 * to.x;
+      const my = 0.25 * from.y + 0.5 * cy + 0.25 * to.y;
+      const marker = svg("g", { class: "svg-neq" });
+      marker.append(svg("circle", { cx: mx, cy: my, r: 13 }));
+      const glyph = svg("text", { x: mx, y: my + 5, "text-anchor": "middle" });
+      glyph.textContent = "≠";
+      marker.append(glyph);
+      const title = svg("title");
+      title.textContent = "Counterexample: same region, different mechanism. Not a research route.";
+      marker.append(title);
+      art.append(marker);
+    }
   });
   ordered.forEach((node) => {
     const position = positions.get(node.id);
@@ -233,15 +247,26 @@ async function selectEdge(edgeId) {
       target.append(route);
     }
     target.append(el("h3", "", evidence.label || "Research relationship"));
-    const basisRow = el("p", "basis-row");
-    basisRow.append(classBadge(evidenceClassOf(evidence.basis)));
-    if (evidence.basis) basisRow.append(el("span", "basis-pill", evidence.basis));
-    target.append(basisRow);
-    if (evidence.role === "counterexample" || edgeMeta?.role === "counterexample") {
-      const banner = el("p", "counterexample-banner", "Same region does not mean same mechanism. This relationship is shown so that proximity is not mistaken for a shared research route.");
+    const isCounter = evidence.role === "counterexample" || edgeMeta?.role === "counterexample";
+    if (isCounter) {
+      const banner = el("div", "counterexample-banner");
+      banner.append(el("strong", "", "Same chromosome 15 region; parent of origin differs."));
+      banner.append(el("span", "", "Shown as a counterexample so that proximity is not mistaken for a shared mechanism, treatment, or research route."));
       target.append(banner);
     }
-    if (evidence.summary) target.append(el("p", "evidence-summary", evidence.summary));
+    const basis = el("div", "evidence-section evidence-basis");
+    basis.append(el("h4", "", "Evidence basis"));
+    const basisRow = el("p", "basis-row");
+    basisRow.append(classBadge(isCounter ? "inferred" : evidenceClassOf(evidence.basis)));
+    if (evidence.basis) basisRow.append(el("span", "basis-pill", evidence.basis));
+    basis.append(basisRow);
+    target.append(basis);
+    if (evidence.summary) {
+      const says = el("div", "evidence-section evidence-says");
+      says.append(el("h4", "", "What the evidence says"));
+      says.append(el("p", "evidence-summary", evidence.summary));
+      target.append(says);
+    }
     const source = el("div", "evidence-section evidence-source");
     source.append(el("h4", "", "Source"));
     source.append(makeLink(evidence.source?.title || "Source not provided", evidence.source?.url, "source-link"));
@@ -287,9 +312,12 @@ async function selectEdge(edgeId) {
       target.append(ablateButton, ablationResult);
     }
     target.append(next);
-    // On narrow screens the lens sits below the map; bring it into view so the selection is visible.
-    if (window.matchMedia("(max-width: 760px)").matches) {
-      target.closest(".evidence-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Keep the top of the lens (route, basis, what the evidence says) on screen after a selection.
+    const panel = target.closest(".evidence-panel");
+    if (panel) {
+      const top = panel.getBoundingClientRect().top;
+      const narrow = window.matchMedia("(max-width: 760px)").matches;
+      if (narrow || top < 60 || top > window.innerHeight * 0.55) panel.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   } catch {
     if (state.selectedEdge === edgeId) showError(target, "Evidence could not be loaded.", () => selectEdge(edgeId));
@@ -506,11 +534,25 @@ async function generateQuestion() {
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`);
     target.replaceChildren();
-    target.append(el("p", "eyebrow", "Live OpenAI draft · requires review"));
+    target.append(el("p", "eyebrow", "Candidate · Requires human review"));
     target.append(el("h3", "", result.candidate.draft_question));
-    target.append(el("p", "", `Uncertainty: ${result.candidate.uncertainty}`));
-    target.append(el("p", "", `Source IDs: ${result.candidate.source_ids.join(", ")}`));
-    target.append(el("p", "", result.warning));
+    if (result.candidate.uncertainty) target.append(el("p", "candidate-uncertainty", `Uncertainty: ${result.candidate.uncertainty}`));
+    if (result.warning) target.append(el("p", "candidate-warning", result.warning));
+    const provenance = document.createElement("details");
+    provenance.className = "provenance";
+    const summary = document.createElement("summary");
+    summary.textContent = "View provenance";
+    provenance.append(summary);
+    const list = el("ul");
+    const prov = result.provenance || {};
+    list.append(el("li", "", `Cited source IDs: ${(result.candidate.source_ids || []).join(", ") || "none"}`));
+    if (prov.model) list.append(el("li", "", `Model: ${prov.model}`));
+    if (prov.status) list.append(el("li", "", `Status: ${prov.status}`));
+    if (prov.timestamp || prov.created_at) list.append(el("li", "", `Logged: ${prov.timestamp || prov.created_at}`));
+    ["prompt_sha256", "output_sha256"].forEach((key) => { if (prov[key]) list.append(el("li", "hash", `${key}: ${prov[key]}`)); });
+    list.append(el("li", "", "Generated under a strict schema that only permits the seed's own sources. Nothing here enters the graph."));
+    provenance.append(list);
+    target.append(provenance);
   } catch (error) {
     showError(target, error.message || "Live drafting failed.", generateQuestion);
   } finally {
@@ -531,9 +573,9 @@ $("#generate-question").addEventListener("click", generateQuestion);
 $("#hero-demo").addEventListener("click", async () => {
   $("#search-input").value = "Angelman syndrome";
   $("#search-results").hidden = true;
-  $("#map").scrollIntoView({ behavior: "smooth", block: "start" });
   await loadGraph(DEFAULT_NODE);
-  if (state.graph?.edges?.some((edge) => edge.id === "angelman-ube3a")) selectEdge("angelman-ube3a");
+  if (state.graph?.edges?.some((edge) => edge.id === "angelman-ube3a")) await selectEdge("angelman-ube3a");
+  document.querySelector(".map-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
 // Header nav follows the section in view.
