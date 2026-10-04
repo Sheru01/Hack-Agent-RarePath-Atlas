@@ -8,7 +8,7 @@
     <title>RarePath Atlas: follow the evidence, find the next question</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,100;1,9..144,300..600,100&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Figtree:ital,wght@0,400..800;1,400..700&family=Fraunces:ital,opsz,wght,SOFT@1,9..144,300..600,100&display=swap" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d0a26'/%3E%3Cpath d='M7 20 L14 10 L20 17 L26 11' fill='none' stroke='%23d7ff5f' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7' cy='20' r='2.3' fill='%23d7ff5f'/%3E%3Ccircle cx='14' cy='10' r='2.3' fill='%23d7ff5f'/%3E%3Ccircle cx='20' cy='17' r='2.3' fill='%23d7ff5f'/%3E%3Ccircle cx='26' cy='11' r='2.3' fill='%23f0b429'/%3E%3C/svg%3E" />
     <link rel="stylesheet" href="/style.css" />
     <script src="/app.js" defer></script>
@@ -42,15 +42,15 @@
           <div class="hero-copy">
             <p class="kicker">Evidence first. AI second. Human judgment always.</p>
             <h1 id="hero-title">Follow the evidence.<br /><em>Find the next question.</em></h1>
-            <p class="hero-description">For Maria and every family trying to understand a complex research landscape: see how a condition, its biology, and the research assets around it connect, with the source and the uncertainty kept in view at every step.</p>
+            <p class="hero-description">For Maria, and for every family facing a rare diagnosis: see how a condition, its genes, and existing research connect. Every link shows where it comes from and what it does not prove.</p>
             <div class="hero-actions">
               <button id="hero-demo" type="button" class="button-primary">Follow Maria's path</button>
               <a class="button-ghost" href="#map">Explore the map</a>
             </div>
             <ol class="hero-steps" aria-label="How to use this atlas">
-              <li><span>Find a topic</span></li>
-              <li><span>Inspect a connection</span></li>
-              <li><span>Take a question forward</span></li>
+              <li><span>Find a condition</span></li>
+              <li><span>Open a connection</span></li>
+              <li><span>Take a question to an expert</span></li>
             </ol>
           </div>
 
@@ -107,22 +107,80 @@
                 <path class="sparkle s7" transform="translate(470 420)" d="M0 -12 C1.8 -3.6 3.6 -1.8 12 0 C3.6 1.8 1.8 3.6 0 12 C-1.8 3.6 -3.6 1.8 -12 0 C-3.6 -1.8 -1.8 -3.6 0 -12Z" />
               </g>
             </svg>
-            <figcaption>Every connection has a reason you can read, and a limit you can see.</figcaption>
+            <figcaption>Every connection shows its reason and its limit.</figcaption>
           </figure>
         </section>
 
         <ul class="legend-row" aria-label="What makes this atlas different">
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" /></svg><div><strong>Every line is sourced</strong><span>A public source, the section it comes from, and the date it was read.</span></div></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10" /><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" /></svg><div><strong>Every line has a limit</strong><span>Each relationship says what it does not establish. A line is never a therapy.</span></div></li>
-          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 9a3.5 3.5 0 1 1 5 3.2c-1 .6-1.5 1.3-1.5 2.6" /><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" /></svg><div><strong>It ends in a question</strong><span>Not an answer. A grounded question to bring to a clinician or a research team.</span></div></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5 10 17.5 19 7" /></svg><div><strong>Every line has a source</strong><span>A public page, the section it came from, and the date we read it.</span></div></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v10" /><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" /></svg><div><strong>Every line has a limit</strong><span>Each connection says what it does not prove. A line is never a treatment.</span></div></li>
+          <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 9a3.5 3.5 0 1 1 5 3.2c-1 .6-1.5 1.3-1.5 2.6" /><circle cx="12" cy="19" r="1.3" fill="currentColor" stroke="none" /></svg><div><strong>It ends in a question</strong><span>Not an answer. A clear question to bring to a doctor or a research team.</span></div></li>
         </ul>
+
+
+        <section class="story" id="story" aria-labelledby="story-title">
+          <div class="story-head">
+            <p class="kicker">How it works, in one minute</p>
+            <h2 id="story-title">From a scattered search to one clear question.</h2>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <svg viewBox="0 0 200 120" aria-hidden="true" class="story-art art-problem">
+                <circle class="dot d1" cx="30" cy="40" r="6" /><circle class="dot d2" cx="80" cy="22" r="5" /><circle class="dot d3" cx="150" cy="35" r="7" />
+                <circle class="dot d4" cx="55" cy="90" r="5" /><circle class="dot d5" cx="120" cy="80" r="6" /><circle class="dot d6" cx="175" cy="95" r="4" />
+                <text x="100" y="66" class="art-q">?</text>
+              </svg>
+              <h3>The problem</h3>
+              <p>A rare diagnosis arrives. The research sits in scattered papers, databases, and patient groups. No one can see the whole picture.</p>
+            </li>
+            <li class="story-step">
+              <svg viewBox="0 0 200 120" aria-hidden="true" class="story-art art-atlas">
+                <path class="link l1" d="M30 40 L80 22" /><path class="link l2" d="M80 22 L150 35" /><path class="link l3" d="M30 40 L55 90" /><path class="link l4" d="M55 90 L120 80" /><path class="link l5" d="M120 80 L150 35" />
+                <circle class="dot lit" cx="30" cy="40" r="6" /><circle class="dot lit" cx="80" cy="22" r="5" /><circle class="dot lit" cx="150" cy="35" r="7" /><circle class="dot lit" cx="55" cy="90" r="5" /><circle class="dot lit" cx="120" cy="80" r="6" />
+                <g class="tag"><rect x="86" y="46" width="54" height="16" rx="8" /><text x="113" y="57">source</text></g>
+              </svg>
+              <h3>The atlas</h3>
+              <p>RarePath draws the map. Every connection comes from a public source, with the section and the date we read it.</p>
+            </li>
+            <li class="story-step">
+              <svg viewBox="0 0 200 120" aria-hidden="true" class="story-art art-limit">
+                <path class="link lit" d="M30 60 L170 60" />
+                <circle class="dot lit" cx="30" cy="60" r="7" /><circle class="dot lit" cx="170" cy="60" r="7" />
+                <g class="neq"><circle cx="100" cy="60" r="16" /><text x="100" y="66">≠</text></g>
+                <g class="tag gold"><rect x="52" y="86" width="96" height="18" rx="9" /><text x="100" y="98">not a treatment</text></g>
+              </svg>
+              <h3>The limit</h3>
+              <p>Every connection also says what it does not prove. A shared gene or region is not a shared treatment.</p>
+            </li>
+            <li class="story-step">
+              <svg viewBox="0 0 200 120" aria-hidden="true" class="story-art art-tenx">
+                <g class="bars-before"><rect x="20" y="20" width="60" height="9" rx="4" /><rect x="20" y="34" width="60" height="9" rx="4" /><rect x="20" y="48" width="60" height="9" rx="4" /><rect x="20" y="62" width="60" height="9" rx="4" /><rect x="20" y="76" width="60" height="9" rx="4" /></g>
+                <path class="arrow" d="M92 52 L116 52 M108 44 L116 52 L108 60" />
+                <g class="bars-after"><rect x="128" y="34" width="52" height="9" rx="4" /><rect x="128" y="48" width="52" height="9" rx="4" /><rect x="128" y="62" width="52" height="9" rx="4" /></g>
+                <text x="100" y="108" class="art-small">search and framing, compressed</text>
+              </svg>
+              <h3>The 10× idea</h3>
+              <p>The goal is to reach an expert's go or no-go decision faster. We think the atlas compresses the search and framing work. That is a hypothesis to test, not a result.</p>
+            </li>
+            <li class="story-step">
+              <svg viewBox="0 0 200 120" aria-hidden="true" class="story-art art-why">
+                <g class="pillar p1"><rect x="18" y="30" width="48" height="64" rx="10" /><text x="42" y="68">1</text></g>
+                <g class="pillar p2"><rect x="76" y="30" width="48" height="64" rx="10" /><text x="100" y="68">2</text></g>
+                <g class="pillar p3"><rect x="134" y="30" width="48" height="64" rx="10" /><text x="158" y="68">3</text></g>
+                <text x="42" y="110" class="art-small">evidence</text><text x="100" y="110" class="art-small">AI</text><text x="158" y="110" class="art-small">people</text>
+              </svg>
+              <h3>Why this way</h3>
+              <p>Evidence first: the sources decide what enters the map. AI second: it only drafts questions. Human judgment always: a person reviews every step.</p>
+            </li>
+          </ol>
+        </section>
 
         <section class="explorer section-panel" id="map" aria-labelledby="map-title">
           <div class="section-heading" data-step="1">
             <span class="step-mark" aria-hidden="true">1</span>
             <div>
               <h2 id="map-title">A map you can question.</h2>
-              <p>Search for a condition or research concept, then open a connection to see what supports it.</p>
+              <p>Search for a condition, gene, or research project. Then open a connection to see what supports it.</p>
             </div>
           </div>
 
@@ -156,7 +214,7 @@
               <div class="map-visual" id="map-visual" aria-live="polite">
                 <div class="loading-state">Loading research connections…</div>
               </div>
-              <p class="map-hint">The map shows recorded research relationships. A line does not establish causation or imply that two therapies are equivalent.</p>
+              <p class="map-hint">Each line is a recorded research connection. A line does not mean one thing causes another, or that two treatments are the same.</p>
             </div>
 
             <aside class="evidence-panel" aria-label="Evidence lens">
@@ -165,7 +223,7 @@
                 <div class="empty-evidence">
                   <svg viewBox="0 0 48 48" aria-hidden="true" class="lens-icon"><circle cx="21" cy="21" r="13" /><path d="m31 31 11 11" /><path d="M15 21h12M21 15v12" /></svg>
                   <h3 id="evidence-title">Look closer at a line.</h3>
-                  <p>Choose a relationship below. You will see its basis, its source, and a limitation worth keeping in view.</p>
+                  <p>Pick a connection below. You will see what supports it, where it comes from, and what it does not prove.</p>
                 </div>
               </div>
             </aside>
@@ -185,7 +243,7 @@
             <span class="step-mark" aria-hidden="true">2</span>
             <div>
               <h2 id="brief-title">An action brief, not an answer.</h2>
-              <p>Turn what you found into a grounded conversation with a clinician or research team.</p>
+              <p>Turn what you found into a clear question for a doctor or a research team.</p>
             </div>
           </div>
           <div id="brief-content" class="brief-card" aria-live="polite">
@@ -195,7 +253,7 @@
             <button id="print-brief" type="button">Print or save brief</button>
             <button id="generate-question" type="button" disabled>Draft a question with OpenAI</button>
             <span id="generation-status" role="status" aria-live="polite">Live drafting requires your local OpenAI API key and explicit enable flag.</span>
-            <span class="actions-note">Optional. The brief above is source-backed; a drafted question is a candidate for human review.</span>
+            <span class="actions-note">Optional. The brief above comes from sources. A drafted question is only a suggestion until a person reviews it.</span>
           </div>
           <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
         </section>
@@ -205,7 +263,7 @@
             <span class="step-mark" aria-hidden="true">3</span>
             <div>
               <h2 id="access-title">LADDER has three access levels.</h2>
-              <p>Research assets can have different access requirements. Check the level and its requirements before making a request.</p>
+              <p>Each level has its own rules. Check them before you make a request.</p>
             </div>
           </div>
           <div class="ladder">

@@ -71,9 +71,9 @@ function nodeLabel(nodeId) {
 // Presentation only: map the seed's existing `basis` wording to one of three evidence classes.
 // "Question" is reserved for the brief's open items; it is never applied to a sourced edge.
 const EVIDENCE_CLASSES = {
-  stated: { label: "Stated", meaning: "Directly asserted by the cited source." },
-  inferred: { label: "Inferred", meaning: "RarePath combined two source-backed statements; the inference and its limits are shown." },
-  question: { label: "Question", meaning: "Not established. Needs a source, expert review, or more evidence." },
+  stated: { label: "Stated", meaning: "The cited source says this directly." },
+  inferred: { label: "Inferred", meaning: "RarePath combined two sourced facts. The inference and its limits are shown." },
+  question: { label: "Question", meaning: "Not established yet. Needs a source, expert review, or more evidence." },
 };
 function evidenceClassOf(basis) {
   return /infer/i.test(String(basis || "")) ? "inferred" : "stated";
@@ -103,7 +103,7 @@ function noRouteCard(payload, heading) {
   meaning.append(el("h4", "", "What this does not mean"));
   meaning.append(el("p", "", payload.not_negative_evidence === false
     ? "A contradicting source was found; see the evidence lens."
-    : "It does not mean no relevant evidence exists in the wider literature. Absence from this snapshot is a gap, not negative evidence."));
+    : "No evidence here does not mean no evidence anywhere. This is a gap in our snapshot, not proof of absence."));
   card.append(meaning);
   if (payload.next_step) {
     const next = el("div", "no-route-block no-route-next");
@@ -160,7 +160,7 @@ function drawMap(graph) {
       glyph.textContent = "≠";
       marker.append(glyph);
       const title = svg("title");
-      title.textContent = "Same chromosome 15 region; parent of origin differs. No supported LADDER action route in this seed.";
+      title.textContent = "Counterexample: same region, different mechanism. Not a research route.";
       marker.append(title);
       art.append(marker);
     }
@@ -238,7 +238,7 @@ async function selectEdge(edgeId) {
     target.classList.remove("revealing");
     void target.offsetWidth; // restart the staggered reveal
     target.classList.add("revealing");
-    target.append(el("p", "evidence-overline", "Selected relationship"));
+    target.append(el("p", "evidence-overline", "Selected connection"));
     // The evidence payload replaces `source` with the citation object, so read endpoints from the loaded graph.
     const edgeMeta = state.graph?.edges?.find((edge) => edge.id === edgeId);
     if (edgeMeta) {
@@ -251,7 +251,7 @@ async function selectEdge(edgeId) {
     if (isCounter) {
       const banner = el("div", "counterexample-banner");
       banner.append(el("strong", "", "Same chromosome 15 region; parent of origin differs."));
-      banner.append(el("span", "", "Shown as a counterexample so that proximity is not mistaken for a shared mechanism, treatment, or research route."));
+      banner.append(el("span", "", "Shown as a counterexample: being close on the chromosome does not mean a shared mechanism, treatment, or research route."));
       target.append(banner);
     }
     const basis = el("div", "evidence-section evidence-basis");
@@ -283,16 +283,16 @@ async function selectEdge(edgeId) {
     target.append(limitation);
     const next = el("div", "evidence-section evidence-next");
     next.append(el("h4", "", "Next step"));
-    const nextLink = el("a", "next-link", "Carry this into the action brief");
+    const nextLink = el("a", "next-link", "Take this into the action brief");
     nextLink.href = "#brief";
     next.append(nextLink);
     if (["angelman-ube3a", "ube3a-locus", "dup15q-locus", "angelman-ladder", "dup15q-ladder"].includes(edgeId)) {
-      const ablateButton = el("button", "ablate-button", "What if this edge is removed?");
+      const ablateButton = el("button", "ablate-button", "What if we remove this link?");
       ablateButton.type = "button";
       const ablationResult = el("div", "ablation-result");
       ablateButton.addEventListener("click", async () => {
         ablateButton.disabled = true;
-        ablationResult.replaceChildren(el("p", "", "Rechecking both routes…"));
+        ablationResult.replaceChildren(el("p", "", "Checking both routes again…"));
         try {
           const result = await getJson(`/api/ablate/${encodeURIComponent(edgeId)}`);
           ablationResult.replaceChildren();
@@ -333,7 +333,7 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
   $("#map-visual").replaceChildren(el("div", "loading-state", "Loading research connections…"));
   $("#edge-list").replaceChildren();
   $("#connection-count").textContent = "—";
-  $("#evidence-content").replaceChildren(el("div", "empty-evidence", "Choose a relationship to inspect its evidence."));
+  $("#evidence-content").replaceChildren(el("div", "empty-evidence", "Pick a connection to see its evidence."));
   const [graphResult, briefResult] = await Promise.allSettled([
     getJson(`/api/graph?node=${encodeURIComponent(nodeId)}`),
     getJson(`/api/brief?node=${encodeURIComponent(nodeId)}`),
@@ -344,7 +344,7 @@ async function loadGraph(nodeId = DEFAULT_NODE) {
     $("#focus-label").textContent = nodeId;
     $("#map-visual").replaceChildren(noRouteCard(graphResult.value, "Relationship map"));
     $("#connection-count").textContent = "00";
-    $("#edge-list").replaceChildren(el("p", "empty-state", "No recorded relationships to inspect for this query."));
+    $("#edge-list").replaceChildren(el("p", "empty-state", "No recorded connections for this search."));
     $("#evidence-content").replaceChildren(el("p", "empty-state", "This is a coverage limit, not evidence that no relationship exists."));
   } else if (graphResult.status === "fulfilled") {
     state.graph = graphResult.value;
