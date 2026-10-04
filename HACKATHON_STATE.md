@@ -6,7 +6,7 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 
 ## Pending release checks
 
-- [ ] Real OpenAI call succeeds with the user's securely configured `OPENAI_API_KEY`.
+- [x] Real OpenAI Responses API call succeeds and a local provenance event is recorded; the key value was not inspected or logged.
 - [ ] Human reviews generated candidate and all displayed scientific wording.
 - [x] User-provided captures visually show search results, relationship map, selected evidence, Action Brief, and three LADDER access levels. This is not an agent-driven browser test.
 - [x] User-reported counterfactual result confirms the biological route disappears while the independent LADDER route remains.
@@ -31,6 +31,7 @@ Research-scoping demo: Angelman → Dup15q → existing LADDER collaboration. Th
 - The user then reported the ablation result: "Biological route no longer supported in this seed" and "Independent LADDER collaboration route remains." A direct local data-flow check passed search → graph → evidence → Action Brief → counterfactual; all 15 unit tests passed again. This does not verify the live OpenAI call or source-link navigation.
 - The user reports the API-key problem is closed, but this repository has no `.env.local` and OpenAI drafting is disabled in this task environment. The running Mac server may have different environment variables; its live status and a real generated candidate have not been observed here.
 - An independent read-only source audit flagged over-attribution of the UBE3A coordinate comparison, imprecise RTI and LADDER access wording, and an overbroad counterfactual label. The relevant MedlinePlus and LADDER pages were checked; PubMed PMID 38808315 and its DOI were also independently verified. The seed and UI now expose both coordinate sources and label the relationship as an inference, narrow RTI to a development partner, specify Level 3 staff-mediated recruitment, and call the toggle a graph-connectivity route check. The original PubMed URL remains valid; its title was corrected. Sixteen tests and JavaScript syntax check passed. This is not a human clinical review or a live UI recheck.
+- The user confirmed local OpenAI drafting works. The gitignored `run/generations.jsonl` contains two `candidate_requires_human_review` events, at 2026-10-03 23:18 UTC and 2026-10-04 00:13 UTC, both using `gpt-4.1-mini`; the latest lists all four allowed source IDs. This verifies the app recorded completed Responses API calls, not that a human approved the generated question. The key value and generated text were not inspected.
 
 ## Decisions held
 
