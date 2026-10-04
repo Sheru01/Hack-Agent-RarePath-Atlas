@@ -160,7 +160,7 @@ function drawMap(graph) {
       glyph.textContent = "≠";
       marker.append(glyph);
       const title = svg("title");
-      title.textContent = "Counterexample: same region, different mechanism. Not a research route.";
+      title.textContent = "Same chromosome 15 region; parent of origin differs. No supported LADDER action route in this seed.";
       marker.append(title);
       art.append(marker);
     }
