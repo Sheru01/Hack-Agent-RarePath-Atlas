@@ -7,10 +7,14 @@
       "maxDuration": 10
     }
   },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
-  ],
-  "headers": [
-    { "source": "/(.*)", "headers": [ { "key": "X-Frame-Options", "value": "DENY" }, { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" } ] }
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index",
+      "headers": {
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      }
+    }
   ]
 }
