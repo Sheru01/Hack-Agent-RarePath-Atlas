@@ -48,7 +48,7 @@ To extend the seed, add a source record first, then the node, then the edge with
 
 ## What is in the seed
 
-`data/seed.json` contains 8 typed nodes, 8 inspectable edges, and 6 public sources. Each edge names its source, locator, basis and limitation; source records carry retrieval dates. The UBE3A-to-region edge explicitly marks its coordinate comparison as an inference and shows both supporting sources. The graph has two independent route families: chromosome-15 biology and the existing LADDER collaboration. Removing a biology edge should not erase the collaboration. There is no claim that all therapies transfer between conditions or that Dup15q is a UBE3A-only disorder.
+`data/seed.json` contains 9 typed nodes, 9 inspectable edges, and 7 public sources. Each edge names its source, locator, basis and limitation; source records carry retrieval dates. The UBE3A-to-region edge explicitly marks its coordinate comparison as an inference and shows both supporting sources. The graph has two independent route families: chromosome-15 biology and the existing LADDER collaboration. Removing a biology edge should not erase the collaboration. There is no claim that all therapies transfer between conditions or that Dup15q is a UBE3A-only disorder.
 
 To reproduce counts and evidence checks, run the test command above. There is no opaque database, retrieval service, or generated seed. The seed is deliberately small: an inspectable neighborhood, not a comprehensive atlas, a validated clinical knowledge graph, or a statistically meaningful cluster.
 
