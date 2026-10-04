@@ -1,0 +1,6 @@
+tests/
+run/
+shots/
+*.png
+HACKATHON_STATE.md
+.env.local
