@@ -535,7 +535,7 @@ async function generateQuestion() {
     if (!response.ok) throw new Error(result.error || `Request failed (${response.status})`);
     target.replaceChildren();
     target.append(el("p", "eyebrow", "Candidate · Requires human review"));
-    button.querySelector(".ai-label")?.replaceChildren(document.createTextNode("Ask OpenAI for another question"));
+    button.querySelector(".ai-label")?.replaceChildren(document.createTextNode("Ask OpenAI again"));
     target.append(el("h3", "", result.candidate.draft_question));
     if (result.candidate.uncertainty) target.append(el("p", "candidate-uncertainty", `Uncertainty: ${result.candidate.uncertainty}`));
     if (result.warning) target.append(el("p", "candidate-warning", result.warning));

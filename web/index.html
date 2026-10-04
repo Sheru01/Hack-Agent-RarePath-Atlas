@@ -29,7 +29,7 @@
           <a href="#map">Map</a>
           <a href="#brief">Action brief</a>
           <a href="#access">Access</a>
-          <a href="#generate-question" class="nav-ai"><span class="ai-spark" aria-hidden="true">✦</span> OpenAI draft</a>
+          <a href="#generate-question" class="nav-ai"><span class="ai-spark" aria-hidden="true">✦</span> Ask OpenAI</a>
         </nav>
         <span class="header-tag">Research prototype</span>
       </header>
@@ -47,7 +47,7 @@
             <div class="hero-actions">
               <button id="hero-demo" type="button" class="button-primary">Follow Maria's path</button>
               <a class="button-ghost" href="#map">Explore the map</a>
-              <a class="button-ai" href="#generate-question"><span class="ai-spark" aria-hidden="true">✦</span> Draft a question with OpenAI</a>
+              <a class="button-ai" href="#generate-question"><span class="ai-spark" aria-hidden="true">✦</span> Ask OpenAI for a question</a>
             </div>
             <ol class="hero-steps" aria-label="How to use this atlas">
               <li><span>Find a condition</span></li>
@@ -249,10 +249,10 @@
             </div>
           </div>
           <div class="brief-actions">
-            <button id="generate-question" type="button" disabled><span class="ai-spark" aria-hidden="true">✦</span> <span class="ai-label">Draft the next question with OpenAI</span></button>
+            <button id="generate-question" type="button" disabled><span class="ai-spark" aria-hidden="true">✦</span> <span class="ai-label">Ask OpenAI for a question</span></button>
             <button id="print-brief" type="button">Print or save brief</button>
             <span id="generation-status" role="status" aria-live="polite">Checking whether live drafting is available…</span>
-            <span class="actions-note">What this does: OpenAI reads the sourced brief below and drafts one research question you could bring to an expert. Press again for another candidate. Every draft is labelled, logged, and needs a person to review it. Nothing it writes enters the map.</span>
+            <span class="actions-note">What this does: OpenAI reads the sourced brief below and drafts one research question you could bring to an expert. Press as many times as you like; each answer is a fresh candidate, not a reply to the last one. Every draft is labelled, logged, and needs a person to review it. Nothing it writes enters the map.</span>
           </div>
           <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
           <div id="brief-content" class="brief-card" aria-live="polite">
