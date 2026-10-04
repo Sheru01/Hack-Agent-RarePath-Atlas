@@ -34,7 +34,9 @@
 
       <main id="main">
         <section class="hero" id="top" aria-labelledby="hero-title">
+          <div class="hero-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
           <div class="hero-grid" aria-hidden="true"></div>
+          <div class="hero-grain" aria-hidden="true"></div>
           <div class="hero-copy">
             <p class="kicker">A clearer path through rare disease research</p>
             <h1 id="hero-title">Start with a question.<br /><em>Follow the evidence.</em></h1>
@@ -67,7 +69,7 @@
                 </radialGradient>
               </defs>
               <!-- graticule -->
-              <g class="graticule">
+              <g class="graticule graticule-spin">
                 <ellipse cx="280" cy="240" rx="250" ry="200" />
                 <ellipse cx="280" cy="240" rx="190" ry="150" />
                 <ellipse cx="280" cy="240" rx="120" ry="94" />
@@ -83,6 +85,7 @@
               <path class="thread" d="M100 170 C150 100, 230 96, 282 140 S 380 220, 452 186" />
               <path class="thread thread-2" d="M452 186 C 476 258, 420 324, 342 342 S 198 356, 136 318" />
               <path class="thread thread-3" d="M136 318 C 108 274, 92 220, 100 170" />
+              <path class="pulse" d="M100 170 C150 100, 230 96, 282 140 S 380 220, 452 186 C 476 258, 420 324, 342 342 S 198 356, 136 318 C 108 274, 92 220, 100 170" />
               <!-- stars -->
               <g class="star-node" transform="translate(100 170)"><circle class="halo" r="46" fill="url(#glow)" /><circle class="core" r="9" /><text class="star-label" x="-18" y="36">Angelman syndrome</text></g>
               <g class="star-node star-gene" transform="translate(282 140)"><circle class="halo" r="40" fill="url(#glow-gold)" /><circle class="core" r="7" /><text class="star-label" x="0" y="-20">UBE3A</text><text class="star-sub" x="0" y="26">gene</text></g>
@@ -104,7 +107,7 @@
         </ul>
 
         <section class="explorer section-panel" id="map" aria-labelledby="map-title">
-          <div class="section-heading">
+          <div class="section-heading" data-step="1">
             <span class="step-mark" aria-hidden="true">1</span>
             <div>
               <h2 id="map-title">A map you can question.</h2>
@@ -167,7 +170,7 @@
         </section>
 
         <section class="brief-section" id="brief" aria-labelledby="brief-title">
-          <div class="section-heading">
+          <div class="section-heading" data-step="2">
             <span class="step-mark" aria-hidden="true">2</span>
             <div>
               <h2 id="brief-title">An action brief, not an answer.</h2>
@@ -186,7 +189,7 @@
         </section>
 
         <section class="access-section section-panel" id="access" aria-labelledby="access-title">
-          <div class="section-heading">
+          <div class="section-heading" data-step="3">
             <span class="step-mark" aria-hidden="true">3</span>
             <div>
               <h2 id="access-title">LADDER has three access levels.</h2>

@@ -159,7 +159,10 @@ function drawMap(graph) {
     group.setAttribute("class", `svg-node-group ${typeClass(node.type)}${node.counterexample ? " is-counterexample" : ""}`);
     const width = isFocus ? 216 : 200;
     const left = position.x - width / 2;
-    group.append(svg("rect", { x: left, y: position.y - 32, width, height: 64, rx: 18, class: className }));
+    if (isFocus) group.append(svg("rect", { x: left, y: position.y - 32, width, height: 64, rx: 18, class: "svg-halo" }));
+    const selected = state.selectedEdge ? edges.find((edge) => edge.id === state.selectedEdge) : null;
+    const isEndpoint = Boolean(selected && (selected.source === node.id || selected.target === node.id));
+    group.append(svg("rect", { x: left, y: position.y - 32, width, height: 64, rx: 18, class: className + (isEndpoint ? " endpoint" : "") }));
     group.append(svg("circle", { cx: left + 18, cy: position.y, r: 5, class: "svg-dot" }));
     const label = svg("text", { x: left + 32, y: position.y + 4, class: "svg-label" });
     label.textContent = shorten(node.label || node.id, isFocus ? 25 : 23);
@@ -218,6 +221,9 @@ async function selectEdge(edgeId) {
     const evidence = await getJson(`/api/evidence/${encodeURIComponent(edgeId)}`);
     if (state.selectedEdge !== edgeId) return;
     target.replaceChildren();
+    target.classList.remove("revealing");
+    void target.offsetWidth; // restart the staggered reveal
+    target.classList.add("revealing");
     target.append(el("p", "evidence-overline", "Selected relationship"));
     // The evidence payload replaces `source` with the citation object, so read endpoints from the loaded graph.
     const edgeMeta = state.graph?.edges?.find((edge) => edge.id === edgeId);
@@ -528,6 +534,21 @@ $("#hero-demo").addEventListener("click", async () => {
   await loadGraph(DEFAULT_NODE);
   if (state.graph?.edges?.some((edge) => edge.id === "angelman-ube3a")) selectEdge("angelman-ube3a");
 });
+
+// Header nav follows the section in view.
+if ("IntersectionObserver" in window) {
+  const links = Array.from(document.querySelectorAll(".site-nav a"));
+  const byId = new Map(links.map((link) => [link.getAttribute("href").slice(1), link]));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      links.forEach((link) => link.removeAttribute("aria-current"));
+      byId.get(entry.target.id)?.setAttribute("aria-current", "true");
+    });
+  }, { rootMargin: "-40% 0px -50% 0px" });
+  byId.forEach((_, id) => { const section = document.getElementById(id); if (section) observer.observe(section); });
+  const hero = document.getElementById("top"); if (hero) observer.observe(hero); // entering the hero clears the highlight
+}
 
 loadGraph();
 checkStatus();
