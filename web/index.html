@@ -29,6 +29,7 @@
           <a href="#map">Map</a>
           <a href="#brief">Action brief</a>
           <a href="#access">Access</a>
+          <a href="#generate-question" class="nav-ai"><span class="ai-spark" aria-hidden="true">✦</span> OpenAI draft</a>
         </nav>
         <span class="header-tag">Research prototype</span>
       </header>
@@ -46,6 +47,7 @@
             <div class="hero-actions">
               <button id="hero-demo" type="button" class="button-primary">Follow Maria's path</button>
               <a class="button-ghost" href="#map">Explore the map</a>
+              <a class="button-ai" href="#generate-question"><span class="ai-spark" aria-hidden="true">✦</span> Draft a question with OpenAI</a>
             </div>
             <ol class="hero-steps" aria-label="How to use this atlas">
               <li><span>Find a condition</span></li>
@@ -246,16 +248,16 @@
               <p>Turn what you found into a clear question for a doctor or a research team.</p>
             </div>
           </div>
+          <div class="brief-actions">
+            <button id="generate-question" type="button" disabled><span class="ai-spark" aria-hidden="true">✦</span> Draft the next question with OpenAI</button>
+            <button id="print-brief" type="button">Print or save brief</button>
+            <span id="generation-status" role="status" aria-live="polite">Live drafting requires your local OpenAI API key and explicit enable flag.</span>
+            <span class="actions-note">The brief below comes from sources. An OpenAI draft is a candidate until a person reviews it.</span>
+          </div>
+          <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
           <div id="brief-content" class="brief-card" aria-live="polite">
             <div class="loading-state">Preparing the research brief…</div>
           </div>
-          <div class="brief-actions">
-            <button id="print-brief" type="button">Print or save brief</button>
-            <button id="generate-question" type="button" disabled>Draft a question with OpenAI</button>
-            <span id="generation-status" role="status" aria-live="polite">Live drafting requires your local OpenAI API key and explicit enable flag.</span>
-            <span class="actions-note">Optional. The brief above comes from sources. A drafted question is only a suggestion until a person reviews it.</span>
-          </div>
-          <div id="generation-result" class="generation-result" hidden aria-live="polite"></div>
         </section>
 
         <section class="access-section section-panel" id="access" aria-labelledby="access-title">
