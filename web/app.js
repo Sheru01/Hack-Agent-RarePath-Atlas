@@ -536,6 +536,11 @@ async function generateQuestion() {
     target.replaceChildren();
     target.append(el("p", "eyebrow", "Candidate · Requires human review"));
     button.querySelector(".ai-label")?.replaceChildren(document.createTextNode("Ask OpenAI again"));
+    const statusLine = $("#generation-status");
+    statusLine.textContent = "New candidate ready below. Press Ask OpenAI again for another one.";
+    statusLine.classList.remove("shine");
+    void statusLine.offsetWidth;
+    statusLine.classList.add("shine");
     target.append(el("h3", "", result.candidate.draft_question));
     if (result.candidate.uncertainty) target.append(el("p", "candidate-uncertainty", `Uncertainty: ${result.candidate.uncertainty}`));
     if (result.warning) target.append(el("p", "candidate-warning", result.warning));
