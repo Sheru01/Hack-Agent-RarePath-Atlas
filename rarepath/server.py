@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import threading
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
@@ -16,9 +18,17 @@ from .openai_adapter import ProviderError, configured, generate_scoping_candidat
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 
+# In-memory per-IP limit on the paid OpenAI-drafting endpoint. This bounds abuse within
+# one running process; a serverless platform that recycles instances resets it, so it is
+# a basic guard, not a substitute for a provider-side spend cap.
+RATE_LIMIT_MAX = 5
+RATE_LIMIT_WINDOW_SECONDS = 60.0
+
 
 class Handler(BaseHTTPRequestHandler):
     atlas = Atlas()
+    _rate_lock = threading.Lock()
+    _rate_hits: dict[str, list[float]] = {}
 
     def log_message(self, format: str, *args: object) -> None:
         # Do not put user search strings or API responses into server logs.
@@ -67,11 +77,33 @@ class Handler(BaseHTTPRequestHandler):
         except AtlasError as exc:
             return self.send_json({"error": str(exc)}, 404)
 
+    def _rate_limited(self) -> bool:
+        """True if this client has exceeded RATE_LIMIT_MAX hits in the trailing window."""
+        ip = self.client_address[0] if self.client_address else "unknown"
+        now = time.monotonic()
+        with self._rate_lock:
+            hits = [t for t in self._rate_hits.get(ip, []) if now - t < RATE_LIMIT_WINDOW_SECONDS]
+            if len(hits) >= RATE_LIMIT_MAX:
+                self._rate_hits[ip] = hits
+                return True
+            hits.append(now)
+            self._rate_hits[ip] = hits
+            return False
+
     def do_POST(self) -> None:
         if urlsplit(self.path).path != "/api/generate-scoping":
             return self.send_json({"error": "unknown endpoint"}, 404)
         if not configured():
             return self.send_json({"error": "local OpenAI drafting is disabled"}, 403)
+        if self._rate_limited():
+            self.send_response(429)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Retry-After", str(int(RATE_LIMIT_WINDOW_SECONDS)))
+            body = json.dumps({"error": "Too many requests. Wait a minute and try again."}).encode("utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return None
         if self.headers.get("Content-Type", "").split(";", 1)[0] != "application/json":
             return self.send_json({"error": "JSON request required"}, 415)
         try:
