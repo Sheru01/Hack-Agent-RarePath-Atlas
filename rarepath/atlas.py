@@ -125,7 +125,7 @@ class Atlas:
             }
         return {
             "title": "Angelman ↔ Dup15q: research-scoping brief",
-            "summary": "A documented chromosome-15 relationship and an existing research collaboration create a concrete comparison opportunity. They do not establish treatment equivalence.",
+            "summary": "A comparison of source-backed chromosome-15 coordinates and an existing research collaboration create a concrete research question. Neither establishes treatment equivalence.",
             "known": [
                 "Angelman syndrome can involve deficient maternal UBE3A function or expression through several molecular mechanisms.",
                 "Dup15q involves a maternal copy-number gain across a region containing multiple genes; it is not merely a UBE3A synonym.",

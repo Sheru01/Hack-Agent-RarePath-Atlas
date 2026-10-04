@@ -50,6 +50,8 @@ class AtlasTests(unittest.TestCase):
 
     def test_brief_marks_governance_and_uncertainty(self):
         brief = self.atlas.brief("angelman")
+        self.assertIn("source-backed chromosome-15 coordinates", brief["summary"])
+        self.assertIn("Neither establishes treatment equivalence", brief["summary"])
         self.assertEqual([item["level"] for item in brief["access"]], [1, 2, 3])
         self.assertIn("LADDER staff", brief["access"][2]["requirements"])
         self.assertIn("existing", brief["asset"]["description"])
